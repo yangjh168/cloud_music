@@ -1,0 +1,4 @@
+enum ResultCode {
+  success,
+  fail,
+}
