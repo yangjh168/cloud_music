@@ -279,7 +279,7 @@ class SongListInfo extends StatelessWidget {
                           SizedBox(height: 10),
                           InkWell(
                             onTap: () {
-                              Routes.navigateTo(context, '/playerView/test');
+                              Routes.navigateTo(context, '/test');
                             },
                             child: Padding(
                               padding: const EdgeInsets.only(top: 4, bottom: 4),

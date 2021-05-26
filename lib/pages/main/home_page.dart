@@ -33,7 +33,6 @@ class _HomePageState extends State<HomePage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    print("home build");
     return Scaffold(
         appBar: AppBar(
           // titleSpacing: 10.0,
@@ -66,7 +65,7 @@ class _HomePageState extends State<HomePage>
             alignment: Alignment.center,
             child: GestureDetector(
               onTap: () {
-                Routes.navigateTo(context, '/playerView/searchPage');
+                Routes.navigateTo(context, '/searchPage');
               },
               child: TextField(
                 style: TextStyle(fontSize: 26.0.sp),

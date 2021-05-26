@@ -1,8 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_music/entity/music.dart';
 import 'package:cloud_music/music_player/playing_list.dart';
+import 'package:cloud_music/provider/index_store.dart';
 import 'package:cloud_music/provider/player_store.dart';
-import 'package:cloud_music/routers/routers.dart';
 import 'package:flutter/material.dart';
 
 class BottomPlayerBar extends StatefulWidget {
@@ -11,11 +11,26 @@ class BottomPlayerBar extends StatefulWidget {
 }
 
 class _BottomPlayerBarState extends State<BottomPlayerBar> {
+  final List<String> playerPage = ['/songlistPage'];
+
   @override
   Widget build(BuildContext context) {
-    return BottomControllerBar(
-        bottomPadding: MediaQuery.of(context).viewInsets.bottom +
-            MediaQuery.of(context).padding.bottom);
+    IndexStore indexStore = IndexStore.of(context);
+    bool isShow = playerPage.any((item) {
+      if (indexStore.currentRoute != null) {
+        // print(indexStore.currentRoute.settings.name);
+        return item == indexStore.currentRoute.settings.name;
+      } else {
+        return false;
+      }
+    });
+    if (isShow) {
+      return BottomControllerBar(
+          bottomPadding: MediaQuery.of(context).viewInsets.bottom +
+              MediaQuery.of(context).padding.bottom);
+    } else {
+      return Container();
+    }
   }
 }
 
@@ -38,7 +53,10 @@ class BottomControllerBar extends StatelessWidget {
     }
     return InkWell(
       onTap: () {
-        Routes.navigateTo(context, '/playerPage');
+        IndexStore indexStore = IndexStore.of(context, listen: false);
+        Route currentRoute = indexStore.currentRoute;
+        currentRoute.navigator.pushNamed('/playerPage');
+        // Routes.navigateTo(context, '/playerPage');
       },
       child: Card(
         margin: EdgeInsets.all(0),
@@ -54,8 +72,8 @@ class BottomControllerBar extends StatelessWidget {
           margin: EdgeInsets.only(bottom: bottomPadding),
           child: Row(
             children: <Widget>[
-              QuietHero(
-                tag: "album_cover",
+              PlayerHero(
+                tag: "album_cover", //唯一标记，前后两个路由页Hero的tag必须相同
                 child: Container(
                   padding: const EdgeInsets.all(8),
                   child: AspectRatio(
@@ -126,19 +144,19 @@ class BottomControllerBar extends StatelessWidget {
   }
 }
 
-class QuietHero extends StatelessWidget {
+class PlayerHero extends StatelessWidget {
   final Object tag;
   final Widget child;
 
-  const QuietHero({Key key, @required this.tag, @required this.child})
+  const PlayerHero({Key key, @required this.tag, @required this.child})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     // if (context.isLandscape) {
     // disable hero animation in landscape mode
-    return child;
+    // return child;
     // }
-    // return Hero(tag: tag, child: child);
+    return Hero(tag: tag, child: child);
   }
 }

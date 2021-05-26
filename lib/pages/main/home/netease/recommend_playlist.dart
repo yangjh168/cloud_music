@@ -74,8 +74,7 @@ class _RecommendPlaylistState extends State<RecommendPlaylist> {
   Widget _playItem(item, context) {
     return InkWell(
       onTap: () {
-        Routes.navigateTo(context, '/playerView/songlistPage',
-            params: {'id': item.id});
+        Routes.navigateTo(context, '/songlistPage', params: {'id': item.id});
       },
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
