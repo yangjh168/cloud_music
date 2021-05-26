@@ -1,4 +1,4 @@
-import 'package:cloud_music/api/kuwo.dart';
+import 'package:cloud_music/api/common.dart';
 import 'package:cloud_music/dialog/music_tile_dialog.dart';
 import 'package:cloud_music/entity/music.dart';
 import 'package:cloud_music/provider/player_store.dart';
@@ -6,7 +6,6 @@ import 'package:cloud_music/provider/search_store.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyrefresh/easy_refresh.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:cloud_music/api/netease.dart';
 import 'package:cloud_music/routers/routers.dart';
 import 'package:cloud_music/widget/platform_logo.dart';
 
@@ -20,10 +19,9 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage>
-    with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin {
+    with AutomaticKeepAliveClientMixin {
   TextEditingController _queryTextController = TextEditingController();
   FocusNode _focusNode = FocusNode();
-  TabController _tabController;
   String query; //搜索关键字
   List<Music> resultList; //搜索结果集
   //搜索历史仓库
@@ -35,13 +33,6 @@ class _SearchPageState extends State<SearchPage>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
-    _tabController.addListener(() {
-      print(_tabController.index);
-      if (_tabController.index.toDouble() == _tabController.animation.value) {
-        _search();
-      }
-    });
     setState(() {
       query = widget.query ?? '';
     });
@@ -56,16 +47,7 @@ class _SearchPageState extends State<SearchPage>
       return;
     }
     _searchHistory.insertSearchHistory(keyword);
-    var res;
-    print("平台==================");
-    print(_tabController.index);
-    if (_tabController.index == 0) {
-      res = await neteaseApi.getSearchResultList({'keywords': keyword});
-    } else if (_tabController.index == 2) {
-      res = await kuwoApi.getSearchResultList({'keyword': keyword});
-    } else {
-      res = await neteaseApi.getSearchResultList({'keywords': keyword});
-    }
+    var res = await commonApi.getSearchResultList({'keyword': keyword});
     List<Music> songs = (res['list'] as List)
         .cast<Map>()
         .map((item) => Music.fromMap(item))
@@ -114,7 +96,7 @@ class _SearchPageState extends State<SearchPage>
               borderRadius: BorderRadius.all(Radius.circular(50.0.w)),
               color: Theme.of(context).scaffoldBackgroundColor,
             ),
-            constraints: BoxConstraints(maxHeight: 34),
+            constraints: BoxConstraints(maxHeight: 35),
             alignment: Alignment.center,
             child: TextField(
               controller: _queryTextController,
@@ -124,25 +106,22 @@ class _SearchPageState extends State<SearchPage>
                 _search();
               },
               onChanged: (val) {},
+              textAlignVertical: TextAlignVertical.bottom,
               style: TextStyle(fontSize: 26.0.sp),
               textInputAction: TextInputAction.search,
               keyboardType: TextInputType.text,
               decoration: InputDecoration(
-                contentPadding: EdgeInsets.all(2),
                 focusColor: Colors.black,
-                border: InputBorder.none,
+                border: OutlineInputBorder(borderSide: BorderSide.none),
                 hintText: '请输入',
                 hintStyle: TextStyle(fontSize: 26.0.sp),
-                prefixIcon: GestureDetector(
-                  onTap: () {},
-                  child: Icon(Icons.search, color: Colors.black45),
-                ),
+                prefixIcon: Icon(Icons.search, color: Colors.black45),
                 prefixStyle: TextStyle(fontSize: 24.sp),
-                suffixIcon: GestureDetector(
-                  onTap: () {},
-                  child: Icon(Icons.camera_alt_outlined, color: Colors.black45),
-                ),
-                suffixStyle: TextStyle(fontSize: 24.sp),
+                // suffixIcon: GestureDetector(
+                //   onTap: () {},
+                //   child: Icon(Icons.camera_alt_outlined, color: Colors.black45),
+                // ),
+                // suffixStyle: TextStyle(fontSize: 24.sp),
               ),
             ),
           ),
@@ -160,16 +139,6 @@ class _SearchPageState extends State<SearchPage>
               ),
             ),
           ],
-          bottom: TabBar(
-            controller: _tabController,
-            indicatorColor: Colors.white,
-            indicatorSize: TabBarIndicatorSize.label,
-            tabs: [
-              Tab(child: Text('网易')),
-              Tab(child: Text('酷狗')),
-              Tab(child: Text('酷我')),
-            ],
-          ),
         ),
         body: AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),

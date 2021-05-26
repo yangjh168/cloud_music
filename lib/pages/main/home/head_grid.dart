@@ -15,7 +15,7 @@ class HeadGrid extends StatelessWidget {
         shrinkWrap: true,
         crossAxisCount: 4,
         physics: NeverScrollableScrollPhysics(), //关闭滚动
-        children: KUWO_HOME_GRID_LIST.map<Widget>((item) {
+        children: HOME_GRID_LIST.map<Widget>((item) {
           return _menuItem(context, item);
         }).toList(),
       ),
@@ -23,7 +23,7 @@ class HeadGrid extends StatelessWidget {
   }
 
   Widget _menuItem(context, Map item) {
-    return InkWell(
+    return GestureDetector(
       onTap: () {
         // 打开wenview页面
         // Routes.navigateTo(context, '/webviewPage',

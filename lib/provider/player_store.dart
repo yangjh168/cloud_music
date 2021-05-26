@@ -1,5 +1,5 @@
 import 'package:audioplayers/audioplayers.dart';
-import 'package:cloud_music/api/netease.dart';
+import 'package:cloud_music/api/common.dart';
 import 'package:cloud_music/entity/music.dart';
 import 'package:cloud_music/entity/play_queue.dart';
 import 'package:cloud_music/music_player/play_mode.dart';
@@ -92,8 +92,7 @@ class PlayerStore extends ChangeNotifier {
   play({int id, int platform, PlayQueue playQueue}) async {
     print("播放音乐：" + id.toString() + platform.toString());
 
-    var playable =
-        await neteaseApi.checkMusic({'id': id, 'platform': platform});
+    var playable = await commonApi.checkMusic({'id': id, 'platform': platform});
     if (playable == null) {
       print("音乐不可用");
       // showDialog(context: context, builder: (context) => DialogNoCopyRight());
@@ -101,7 +100,7 @@ class PlayerStore extends ChangeNotifier {
     }
 
     final res =
-        await neteaseApi.getMusicDetail({'id': id, 'platform': platform});
+        await commonApi.getMusicDetail({'id': id, 'platform': platform});
     Music music = Music.fromMap(res);
 
     if (playQueue != null) {

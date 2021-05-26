@@ -1,5 +1,6 @@
 // 参考：https://www.jianshu.com/p/e011c45bfaf1
 import 'dart:io';
+import 'package:cloud_music/repository/global_repository.dart';
 import 'package:dio/dio.dart';
 import 'package:connectivity/connectivity.dart';
 import '../config/index.dart';
@@ -63,9 +64,7 @@ class DioUtils {
   /// capture：是否自定义捕获请求异常处理程序
   static Future request(Method method, String path,
       [Map data, Options options, bool capture = false]) async {
-    if (capture == null) {
-      capture = false;
-    }
+    capture = capture ?? false;
     try {
       //没有网络
       var connectivityResult = await (new Connectivity().checkConnectivity());
@@ -74,10 +73,10 @@ class DioUtils {
         return;
       }
       Dio _dio = createInstance();
-      if (options == null) {
-        options = new Options();
-      }
+      options = options ?? Options();
       options = options.merge(method: MethodValues[method]);
+      options =
+          options.merge(headers: {'platform': GlobalData.instance.platform});
       Map<String, dynamic> queryParameters;
       // get请求处理
       if (method != null && MethodValues[method] == 'get' && data != null) {

@@ -1,6 +1,6 @@
 import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cloud_music/api/netease.dart';
+import 'package:cloud_music/api/common.dart';
 import 'package:cloud_music/dialog/music_tile_dialog.dart';
 import 'package:cloud_music/entity/play_queue.dart';
 import 'package:cloud_music/entity/playlist_detail.dart';
@@ -30,7 +30,7 @@ class _SonglistPageState extends State<SonglistPage> {
     return Scaffold(
       body: Container(
           child: LoadDataBuilder<PlaylistDetail>(
-              api: neteaseApi.getSonglistDetail,
+              api: commonApi.getSonglistDetail,
               params: {'id': widget.id},
               builder: (context, data) {
                 return CustomScrollView(

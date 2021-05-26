@@ -1,11 +1,33 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cloud_music/api/kuwo.dart';
+import 'package:cloud_music/api/common.dart';
+import 'package:cloud_music/api/netease.dart';
 import 'package:cloud_music/entity/song_menu.dart';
+import 'package:cloud_music/routers/routers.dart';
 import 'package:cloud_music/widget/load_data_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class RecommendPlaylist extends StatelessWidget {
+class RecommendPlaylist extends StatefulWidget {
+  RecommendPlaylist({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  RecommendPlaylistState createState() => RecommendPlaylistState();
+}
+
+class RecommendPlaylistState extends State<RecommendPlaylist> {
+  GlobalKey<LoadDataBuilderState> loadDataKey =
+      new GlobalKey<LoadDataBuilderState>();
+
+  @override
+  void initState() {
+    super.initState();
+
+    //修改ImageCache的文件最大缓存值，解决CachedNetworkImage新页面返回会重新加载图片问题，参考：https://github.com/Baseflow/flutter_cached_network_image/issues/529
+    PaintingBinding.instance.imageCache.maximumSizeBytes = 1000 << 20;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -37,33 +59,34 @@ class RecommendPlaylist extends StatelessWidget {
               ),
             ),
             LoadDataBuilder<List<SongMenu>>(
-                api: kuwoApi.getRecommendPlaylist,
-                builder: (context, data) {
-                  return Container(
-                    padding: EdgeInsets.only(left: 20.w, right: 20.w),
-                    child: GridView.count(
-                      childAspectRatio: 0.7, //宽高比
-                      crossAxisSpacing: 20.w,
-                      shrinkWrap: true,
-                      crossAxisCount: 3,
-                      physics: NeverScrollableScrollPhysics(), //关闭滚动
-                      children: data.map<Widget>((item) {
-                        return _playItem(item);
-                      }).toList(),
-                    ),
-                  );
-                })
+              key: loadDataKey,
+              api: commonApi.getRecommendPlaylist,
+              builder: (context, data) {
+                return Container(
+                  padding: EdgeInsets.only(left: 20.w, right: 20.w),
+                  child: GridView.count(
+                    childAspectRatio: 0.7, //宽高比
+                    crossAxisSpacing: 20.w,
+                    shrinkWrap: true,
+                    crossAxisCount: 3,
+                    physics: NeverScrollableScrollPhysics(), //关闭滚动
+                    children: data.map<Widget>((item) {
+                      return _playItem(item, context);
+                    }).toList(),
+                  ),
+                );
+              },
+            )
           ],
         ));
   }
 
-  Widget _playItem(item) {
+  Widget _playItem(item, context) {
     return InkWell(
       onTap: () {
-        print('点击了菜单');
+        Routes.navigateTo(context, '/songlistPage', params: {'id': item.id});
       },
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
             alignment: Alignment.center,
@@ -75,10 +98,10 @@ class RecommendPlaylist extends StatelessWidget {
                 imageUrl: item.picUrl,
                 placeholder: (context, url) => Container(
                   width: 130,
-                  height: 100,
+                  height: 130,
                   child: Center(
                     child: CircularProgressIndicator(
-                      strokeWidth: 2,
+                      strokeWidth: 1,
                     ),
                   ),
                 ),

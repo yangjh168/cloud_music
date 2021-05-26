@@ -10,6 +10,8 @@ class IndexStore extends ChangeNotifier {
   int currentIndex = 0; //主页底部tab下标
   Route currentRoute; //当前路由对象
 
+  int currentPlatform = 1; //当前播放平台
+
   setCurrentIndex(int index) {
     currentIndex = index;
     notifyListeners();
@@ -17,6 +19,11 @@ class IndexStore extends ChangeNotifier {
 
   setCurrentRoute(Route route) {
     currentRoute = route;
+    notifyListeners();
+  }
+
+  setCurrentPlatform(int platform) {
+    currentPlatform = platform;
     notifyListeners();
   }
 }

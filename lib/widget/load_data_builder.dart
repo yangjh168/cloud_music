@@ -1,4 +1,4 @@
-import 'package:cloud_music/entity/song_menu.dart';
+import 'package:cloud_music/dio/dio_utils.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:async/async.dart';
@@ -45,17 +45,17 @@ class LoadDataBuilder<T> extends StatefulWidget {
     );
   }
 
-  static _LoadDataBuilderState<T> of<T>(BuildContext context) {
+  static LoadDataBuilderState<T> of<T>(BuildContext context) {
     // findAncestorStateOfType()可以从当前节点沿着widget树向上查找指定类型的StatefulWidget对应的State对象。
     // 注意：context必须为LoadDataBuilder子节点的context
-    return context.findAncestorStateOfType<_LoadDataBuilderState>();
+    return context.findAncestorStateOfType<LoadDataBuilderState>();
   }
 
   @override
-  _LoadDataBuilderState createState() => _LoadDataBuilderState<T>();
+  LoadDataBuilderState createState() => LoadDataBuilderState<T>();
 }
 
-class _LoadDataBuilderState<T> extends State<LoadDataBuilder> {
+class LoadDataBuilderState<T> extends State<LoadDataBuilder> {
   bool get isLoading => _loadingTask != null;
 
   CancelableOperation _loadingTask;
@@ -92,8 +92,12 @@ class _LoadDataBuilderState<T> extends State<LoadDataBuilder> {
         assert(result != null, "result can not be null");
         baseResult = BaseResult.success<T>(result);
       }).catchError((e, StackTrace stack) {
-        assert(e is Map, "未知错误：$e，请检查api是否提供正确，或api中是否存在awiat!");
-        baseResult = BaseResult.error<T>(code: e.code, msg: e.msg);
+        if (e is NetError) {
+          baseResult = BaseResult.error<T>(code: e.code, msg: e.msg);
+        } else {
+          // assert(e is Map, "未知错误：$e，请检查api是否提供正确，或api中是否存在awiat!");
+          baseResult = BaseResult.error<T>(code: 500, msg: '未知错误');
+        }
         _onError(e, stack);
       }).whenComplete(() {
         print("加载完成");

@@ -1,8 +1,9 @@
+import 'package:cloud_music/provider/index_store.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_music/pages/main/home/netease/banner_swiper.dart';
-import 'package:cloud_music/pages/main/home/netease/head_grid.dart';
-import 'package:cloud_music/pages/main/home/netease/new_music_list.dart';
-import 'package:cloud_music/pages/main/home/netease/recommend_playlist.dart';
+import 'package:cloud_music/pages/main/home/banner_swiper.dart';
+import 'package:cloud_music/pages/main/home/head_grid.dart';
+import 'package:cloud_music/pages/main/home/new_music_list.dart';
+import 'package:cloud_music/pages/main/home/recommend_playlist.dart';
 import 'package:flutter_easyrefresh/easy_refresh.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -13,16 +14,26 @@ class NeteaseHome extends StatefulWidget {
 
 class _NeteaseHomeState extends State<NeteaseHome>
     with AutomaticKeepAliveClientMixin {
+  int platform = 1;
+
+  GlobalKey<RecommendPlaylistState> recommendPlaylistKey =
+      new GlobalKey<RecommendPlaylistState>();
+  GlobalKey<NewMusicListState> newMusicListKey =
+      new GlobalKey<NewMusicListState>();
+
   @override
   bool get wantKeepAlive => true;
 
   @override
   void initState() {
     super.initState();
-    _getMenuList();
+    // _getMenuList();
   }
 
   void _getMenuList() async {
+    print("重新加载首页数据");
+    recommendPlaylistKey.currentState.loadDataKey.currentState.refresh();
+    newMusicListKey.currentState.loadDataKey.currentState.refresh();
     // var list = await getHomeMenuList({}, {
     //   'headers': {'source_type': '504'}
     // });
@@ -40,6 +51,14 @@ class _NeteaseHomeState extends State<NeteaseHome>
             "https://ns-strategy.cdn.bcebos.com/ns-strategy/upload/fc_big_pic/part-00799-2326.jpg"
       }
     ];
+    IndexStore indexStore = IndexStore.of(context);
+    int currentPlatform = indexStore.currentPlatform;
+    if (platform != currentPlatform) {
+      this.setState(() {
+        platform = currentPlatform;
+      });
+      _getMenuList();
+    }
     return EasyRefresh(
       header: MaterialHeader(),
       bottomBouncing: false, //底部回弹
@@ -55,8 +74,8 @@ class _NeteaseHomeState extends State<NeteaseHome>
               children: [
                 BannerSwiper(bannerList: bannerList),
                 HeadGrid(),
-                RecommendPlaylist(),
-                NewMusicList(),
+                RecommendPlaylist(key: recommendPlaylistKey),
+                NewMusicList(key: newMusicListKey),
               ],
             ),
           ),

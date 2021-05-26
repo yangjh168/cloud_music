@@ -29,14 +29,14 @@ class _SlideDrawerState extends State<SlideDrawer> {
     //遮罩层透明度
     final double opacity = position * 0.6;
     //存储
-    // IndexStore.of(context, listen: false).setSlideKey(_slideKey);
-    globalData.setSlideKey(_slideKey);
+    GlobalData.instance.slideKey = _slideKey;
     return Container(
       // margin: EdgeInsets.only(top: statusBarHeight),
       child: SlideStack(
         drawer: DrawerPage(),
         child: SlideContainer(
           key: _slideKey,
+          // minAutoSlideDistance: 50.0,
           shadowSpreadRadius: 0,
           shadowBlurRadius: 0,
           slideDirection: SlideDirection.left,

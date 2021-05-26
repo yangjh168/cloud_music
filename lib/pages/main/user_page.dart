@@ -324,7 +324,7 @@ class SliverCustomHeaderDelegate extends SliverPersistentHeaderDelegate {
                         child: GestureDetector(
                             onTap: () {
                               //打开侧边栏
-                              var _slideKey = globalData.getSlideKey();
+                              var _slideKey = GlobalData.instance.slideKey;
                               if (_slideKey != null) {
                                 _slideKey.currentState.openOrClose();
                               }
