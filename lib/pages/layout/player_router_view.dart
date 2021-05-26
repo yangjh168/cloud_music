@@ -48,17 +48,17 @@ class _PlayerRouterViewState extends State<PlayerRouterView> {
               children: [
                 Expanded(
                   child: Navigator(
-                    key: key,
-                    initialRoute: widget.initialRoute,
-                    onGenerateRoute: router.generator,
-                    onUnknownRoute: (RouteSettings setting) {
-                      String name = setting.name;
-                      print("未匹配到路由:$name");
-                      return MaterialPageRoute(builder: (context) {
-                        return ErrorPage();
-                      });
-                    },
-                  ),
+                      key: key,
+                      initialRoute: widget.initialRoute,
+                      onGenerateRoute: router.generator,
+                      onUnknownRoute: (RouteSettings setting) {
+                        String name = setting.name;
+                        print("未匹配到路由:$name");
+                        return MaterialPageRoute(builder: (context) {
+                          return ErrorPage();
+                        });
+                      },
+                      observers: [MyNavigator(context: context)]),
                 ),
                 BottomPlayerBar(),
               ],
@@ -67,5 +67,46 @@ class _PlayerRouterViewState extends State<PlayerRouterView> {
         },
       ),
     );
+  }
+}
+
+///导航栈的变化监听
+class MyNavigator extends NavigatorObserver {
+  BuildContext context;
+
+  MyNavigator({this.context});
+
+  @override
+  void didPop(Route<dynamic> route, Route<dynamic> previousRoute) {
+    super.didPop(route, previousRoute);
+    //二级路由返回时，当没有上一级路由时，则关闭当前二级路由
+    if (previousRoute == null) {
+      Navigator.of(context).pop();
+    }
+  }
+
+  @override
+  void didPush(Route<dynamic> route, Route<dynamic> previousRoute) {
+    super.didPush(route, previousRoute);
+  }
+
+  @override
+  void didStopUserGesture() {
+    super.didStopUserGesture();
+  }
+
+  @override
+  void didStartUserGesture(Route<dynamic> route, Route<dynamic> previousRoute) {
+    super.didStartUserGesture(route, previousRoute);
+  }
+
+  @override
+  void didReplace({Route<dynamic> newRoute, Route<dynamic> oldRoute}) {
+    super.didReplace(newRoute: newRoute, oldRoute: oldRoute);
+  }
+
+  @override
+  void didRemove(Route<dynamic> route, Route<dynamic> previousRoute) {
+    super.didRemove(route, previousRoute);
   }
 }
