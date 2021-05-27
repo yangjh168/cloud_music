@@ -1,23 +1,29 @@
 import 'package:cloud_music/dio/dio_utils.dart';
 import 'package:cloud_music/entity/base_result.dart';
+import 'package:cloud_music/entity/page_result.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyrefresh/easy_refresh.dart';
 import 'package:async/async.dart';
 
+typedef LoadDataWidgetBuilder<T> = Widget Function(
+    BuildContext context, T result);
+
 class EasyPageList<T> extends StatefulWidget {
   final Function api;
   final Map params;
-  final Widget Function(BuildContext context, T result) builder;
+  final LoadDataWidgetBuilder<T> builder;
   final Widget Function(BuildContext context, BaseResult result) errorBuilder;
   final WidgetBuilder loadingBuilder;
+  final WidgetBuilder finishedBuilder;
 
   const EasyPageList({
     Key key,
     @required this.api,
-    @required this.builder,
     this.params,
-    this.loadingBuilder,
+    @required this.builder,
     this.errorBuilder,
+    this.loadingBuilder,
+    this.finishedBuilder,
   }) : super(key: key);
 
   static Widget buildSimpleLoadingWidget<T>(BuildContext context) {
@@ -33,6 +39,8 @@ class EasyPageList<T> extends StatefulWidget {
       },
     );
   }
+
+  static Widget buildSimpleFinishedWidget = Container(child: Text("加载完成"));
 
   static _EasyPageListState<T> of<T>(BuildContext context) {
     // findAncestorStateOfType()可以从当前节点沿着widget树向上查找指定类型的StatefulWidget对应的State对象。
@@ -52,7 +60,7 @@ class _EasyPageListState<T> extends State<EasyPageList> {
 
   CancelableOperation _loadingTask;
 
-  BaseResult<T> baseResult;
+  BaseResult<PageResult<T>> baseResult;
 
   @override
   void initState() {
@@ -63,6 +71,7 @@ class _EasyPageListState<T> extends State<EasyPageList> {
   ///refresh data
   // force: true在加载过程中强制刷新
   Future<void> refresh({bool force: false}) async {
+    print("刷新数据");
     _loadData(widget.api, force: false);
   }
 
@@ -75,20 +84,23 @@ class _EasyPageListState<T> extends State<EasyPageList> {
     }
     _loadingTask?.cancel();
     var pagetion = {'limit': limit, 'offset': offset};
-    _loadingTask = CancelableOperation<T>.fromFuture(
-      Future(() async {
-        return await widget.api(pagetion.addAll(widget.params), null, true);
-      }),
-    )..value.then((result) {
+    var newParams =
+        widget.params != null ? pagetion.addAll(widget.params) : pagetion;
+    var sfuture = widget.api(newParams, null, true);
+    print(sfuture);
+    _loadingTask = CancelableOperation<PageResult<T>>.fromFuture(sfuture)
+      ..value.then((result) {
         print("加载成功");
+        print(result);
         assert(result != null, "result can not be null");
-        baseResult = BaseResult.success<T>(result);
+        baseResult = BaseResult.success<PageResult<T>>(result);
       }).catchError((e, StackTrace stack) {
+        print("加载失败:" + e.toString());
         if (e is NetError) {
-          baseResult = BaseResult.error<T>(code: e.code, msg: e.msg);
+          baseResult = BaseResult.error(code: e.code, msg: e.msg);
         } else {
           // assert(e is Map, "未知错误：$e，请检查api是否提供正确，或api中是否存在awiat!");
-          baseResult = BaseResult.error<T>(code: 500, msg: '未知错误');
+          baseResult = BaseResult.error(code: 500, msg: '未知错误');
         }
         _onError(e, stack);
       }).whenComplete(() {
@@ -112,35 +124,40 @@ class _EasyPageListState<T> extends State<EasyPageList> {
 
   @override
   Widget build(BuildContext context) {
-    var ss = widget.api;
     return EasyRefresh(
       header: MaterialHeader(),
       bottomBouncing: false, //底部回弹
-      child: buildContent(),
+      child: _buildContent(),
       onRefresh: () async {
         refresh();
       },
     );
   }
 
-  Widget buildContent() {
+  Widget _buildContent() {
+    print(context);
     if (isLoading == true) {
       return (widget.loadingBuilder ??
           EasyPageList.buildSimpleLoadingWidget)(context);
     }
-    if (baseResult != null) {
-      if (baseResult.isSuccess == true) {
-        return widget.builder(context, baseResult.data);
-      } else {
-        return LoadErrorWidget(
-          errorBuilder:
-              widget.errorBuilder ?? EasyPageList.buildSimpleFailedWidget,
-          result: baseResult,
-        );
-      }
-    } else {
-      return Text("");
+    if (baseResult == null || baseResult.isSuccess == false) {
+      return LoadErrorWidget(
+        errorBuilder:
+            widget.errorBuilder ?? EasyPageList.buildSimpleFailedWidget,
+        result: baseResult,
+      );
     }
+    List<Widget> pageWidget = [];
+    // T result = baseResult.data.list;
+    Widget listTep = widget.builder(context, baseResult.data.list);
+    print(listTep);
+    // Widget listTep = Text('111111111111');
+    pageWidget.add(listTep);
+    if ((baseResult.data.list as List).length >= baseResult.data.total) {
+      pageWidget.add(
+          widget.finishedBuilder ?? EasyPageList.buildSimpleFinishedWidget);
+    }
+    return Column(children: pageWidget);
   }
 }
 

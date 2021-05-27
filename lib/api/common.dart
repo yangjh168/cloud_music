@@ -1,4 +1,5 @@
 import 'package:cloud_music/entity/model.dart';
+import 'package:cloud_music/entity/page_result.dart';
 import 'package:cloud_music/entity/playlist_detail.dart';
 import 'package:cloud_music/entity/song_menu.dart';
 import 'package:dio/dio.dart';
@@ -73,14 +74,14 @@ class CommonApi {
   }
 
   // 获取歌单列表-可按分类查询
-  Future<List<SongMenu>> getPlaylistList(
+  Future<PageResult<List<SongMenu>>> getPlaylistList(
       [Map data, Options options, bool capture]) async {
     final response =
         await HttpUtils.get('/playlist/list', data, options, capture);
-    final list = (response as List)
+    final list = (response['list'] as List)
         .cast<Map>()
         .map((item) => SongMenu.fromJson(item))
         .toList();
-    return list;
+    return PageResult(response['total'], list);
   }
 }

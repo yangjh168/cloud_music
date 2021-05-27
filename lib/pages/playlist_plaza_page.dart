@@ -76,11 +76,12 @@ class _PlaylistPlazzPageState extends State<PlaylistPlazzPage>
     return EasyPageList<List<SongMenu>>(
       api: commonApi.getPlaylistList,
       builder: (context, data) {
-        return Column(
-          children: data.map((item) {
-            return _playItem(item, data);
-          }).toList(),
-        );
+        return Text("2222222222222");
+        // return Column(
+        //   children: data.map((item) {
+        //     return _playItem(item, data);
+        //   }).toList(),
+        // );
       },
     );
   }
