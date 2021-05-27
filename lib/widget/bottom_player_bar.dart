@@ -11,7 +11,8 @@ class BottomPlayerBar extends StatefulWidget {
 }
 
 class _BottomPlayerBarState extends State<BottomPlayerBar> {
-  final List<String> playerPage = ['/songlistPage'];
+  //显示底部播放控制面板的页面
+  final List<String> playerPage = ['/songlistPage', '/dailyRecommendPage'];
 
   @override
   Widget build(BuildContext context) {
@@ -129,7 +130,10 @@ class BottomControllerBar extends StatelessWidget {
               new IconButton(
                 tooltip: "当前播放列表",
                 onPressed: () {
-                  PlayingListDialog.show(context);
+                  IndexStore indexStore = IndexStore.of(context, listen: false);
+                  Route currentRoute = indexStore.currentRoute;
+                  BuildContext currentContext = currentRoute.navigator.context;
+                  PlayingListDialog.show(currentContext);
                 },
                 icon: new Icon(
                   Icons.menu,

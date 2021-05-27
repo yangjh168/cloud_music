@@ -82,15 +82,18 @@ class _SearchPageState extends State<SearchPage>
           // iconTheme: IconThemeData(color: Colors.black),
           // textTheme: Theme.of(context).primaryTextTheme,
           brightness: Theme.of(context).primaryColorBrightness,
-          leading: GestureDetector(
-            child: Icon(
-              Icons.arrow_back_ios_outlined,
+          leading: Container(
+            margin: EdgeInsets.only(left: 15),
+            child: GestureDetector(
+              child: Icon(
+                Icons.arrow_back_ios_outlined,
+              ),
+              onTap: () {
+                _closeSearch(context, null);
+              },
             ),
-            onTap: () {
-              _closeSearch(context, null);
-            },
           ),
-          leadingWidth: 50.0.w,
+          leadingWidth: 40.0,
           title: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(50.0.w)),
@@ -127,7 +130,7 @@ class _SearchPageState extends State<SearchPage>
           ),
           actions: [
             Container(
-              padding: EdgeInsets.only(right: 20.0.w),
+              padding: EdgeInsets.only(right: 15),
               child: Center(
                 child: GestureDetector(
                   child: Text("搜索",

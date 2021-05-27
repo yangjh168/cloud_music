@@ -1,35 +1,24 @@
 import 'package:cloud_music/dio/dio_utils.dart';
-import 'package:flutter/material.dart';
-import 'dart:async';
-import 'package:async/async.dart';
 import 'package:cloud_music/entity/base_result.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_easyrefresh/easy_refresh.dart';
+import 'package:async/async.dart';
 
-typedef LoadDataWidgetBuilder<T> = Widget Function(
-    BuildContext context, T result);
-
-void _defaultFailedHandler(BuildContext context, e, StackTrace stack) {
-  debugPrint("error:\n ${e.toString()}");
-}
-
-class LoadDataBuilder<T> extends StatefulWidget {
-  final Map params;
+class EasyPageList<T> extends StatefulWidget {
   final Function api;
-  final LoadDataWidgetBuilder<T> builder;
+  final Map params;
+  final Widget Function(BuildContext context, T result) builder;
   final Widget Function(BuildContext context, BaseResult result) errorBuilder;
-  final void Function(BuildContext context, Object e, StackTrace stack) onError;
-
   final WidgetBuilder loadingBuilder;
-  const LoadDataBuilder(
-      {Key key,
-      @required this.api,
-      @required this.builder,
-      this.loadingBuilder,
-      this.params,
-      this.onError = _defaultFailedHandler,
-      this.errorBuilder})
-      : assert(api != null),
-        assert(builder != null),
-        super(key: key);
+
+  const EasyPageList({
+    Key key,
+    @required this.api,
+    @required this.builder,
+    this.params,
+    this.loadingBuilder,
+    this.errorBuilder,
+  }) : super(key: key);
 
   static Widget buildSimpleLoadingWidget<T>(BuildContext context) {
     return SimpleLoading(height: 200);
@@ -40,22 +29,25 @@ class LoadDataBuilder<T> extends StatefulWidget {
     return SimpleFailed(
       message: result.msg,
       retry: () {
-        LoadDataBuilder.of(context).refresh();
+        EasyPageList.of(context).refresh();
       },
     );
   }
 
-  static LoadDataBuilderState<T> of<T>(BuildContext context) {
+  static _EasyPageListState<T> of<T>(BuildContext context) {
     // findAncestorStateOfType()可以从当前节点沿着widget树向上查找指定类型的StatefulWidget对应的State对象。
-    // 注意：context必须为LoadDataBuilder子节点的context
-    return context.findAncestorStateOfType<LoadDataBuilderState>();
+    // 注意：context必须为EasyPageList子节点的context
+    return context.findAncestorStateOfType<_EasyPageListState>();
   }
 
   @override
-  LoadDataBuilderState createState() => LoadDataBuilderState<T>();
+  _EasyPageListState createState() => _EasyPageListState<T>();
 }
 
-class LoadDataBuilderState<T> extends State<LoadDataBuilder> {
+class _EasyPageListState<T> extends State<EasyPageList> {
+  int limit = 50;
+  int offset = 0;
+
   bool get isLoading => _loadingTask != null;
 
   CancelableOperation _loadingTask;
@@ -67,9 +59,6 @@ class LoadDataBuilderState<T> extends State<LoadDataBuilder> {
     super.initState();
     refresh();
   }
-
-  @override
-  LoadDataBuilder<T> get widget => super.widget;
 
   ///refresh data
   // force: true在加载过程中强制刷新
@@ -85,10 +74,10 @@ class LoadDataBuilderState<T> extends State<LoadDataBuilder> {
       return _loadingTask.value;
     }
     _loadingTask?.cancel();
-    // Future _future = widget.api(widget.params, null, true);
+    var pagetion = {'limit': limit, 'offset': offset};
     _loadingTask = CancelableOperation<T>.fromFuture(
       Future(() async {
-        return await widget.api(widget.params, null, true);
+        return await widget.api(pagetion.addAll(widget.params), null, true);
       }),
     )..value.then((result) {
         print("加载成功");
@@ -112,11 +101,7 @@ class LoadDataBuilderState<T> extends State<LoadDataBuilder> {
     return _loadingTask.value;
   }
 
-  void _onError(e, StackTrace stack) {
-    if (widget.onError != null) {
-      widget.onError(context, e, stack);
-    }
-  }
+  void _onError(e, StackTrace stack) {}
 
   @override
   void dispose() {
@@ -127,9 +112,21 @@ class LoadDataBuilderState<T> extends State<LoadDataBuilder> {
 
   @override
   Widget build(BuildContext context) {
+    var ss = widget.api;
+    return EasyRefresh(
+      header: MaterialHeader(),
+      bottomBouncing: false, //底部回弹
+      child: buildContent(),
+      onRefresh: () async {
+        refresh();
+      },
+    );
+  }
+
+  Widget buildContent() {
     if (isLoading == true) {
       return (widget.loadingBuilder ??
-          LoadDataBuilder.buildSimpleLoadingWidget)(context);
+          EasyPageList.buildSimpleLoadingWidget)(context);
     }
     if (baseResult != null) {
       if (baseResult.isSuccess == true) {
@@ -137,7 +134,7 @@ class LoadDataBuilderState<T> extends State<LoadDataBuilder> {
       } else {
         return LoadErrorWidget(
           errorBuilder:
-              widget.errorBuilder ?? LoadDataBuilder.buildSimpleFailedWidget,
+              widget.errorBuilder ?? EasyPageList.buildSimpleFailedWidget,
           result: baseResult,
         );
       }

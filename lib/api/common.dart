@@ -7,7 +7,7 @@ import '../dio/http_utils.dart';
 CommonApi commonApi = new CommonApi();
 
 class CommonApi {
-  // 获取推荐歌单
+  // 获取首页推荐歌单
   Future<List<SongMenu>> getRecommendPlaylist(
       [Map data, Options options, bool capture]) async {
     final response =
@@ -19,7 +19,7 @@ class CommonApi {
     return list;
   }
 
-  // 获取推荐的新歌（10首）
+  // 获取首页推荐的新歌（10首）
   Future<List<Music>> getNewMusicList(
       [Map data, Options options, bool capture]) async {
     final response =
@@ -52,5 +52,35 @@ class CommonApi {
     final res = await HttpUtils.get('/songlist/detail', data, options, capture);
     PlaylistDetail playlistDetail = PlaylistDetail.fromJson(res);
     return playlistDetail;
+  }
+
+  //每日推荐歌曲列表
+  Future<List<Music>> getDailyRecommendList(
+      [Map data, Options options, bool capture]) async {
+    final response =
+        await HttpUtils.get('/recommend/songs', data, options, capture);
+    final list = (response as List)
+        .cast<Map>()
+        .map((item) => Music.fromMap(item))
+        .toList();
+    return list;
+  }
+
+  //热门歌单分类
+  Future getPlaylistHotCategory(
+      [Map data, Options options, bool capture]) async {
+    return HttpUtils.get('/playlist/hotcategory', data, options, capture);
+  }
+
+  // 获取歌单列表-可按分类查询
+  Future<List<SongMenu>> getPlaylistList(
+      [Map data, Options options, bool capture]) async {
+    final response =
+        await HttpUtils.get('/playlist/list', data, options, capture);
+    final list = (response as List)
+        .cast<Map>()
+        .map((item) => SongMenu.fromJson(item))
+        .toList();
+    return list;
   }
 }

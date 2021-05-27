@@ -37,21 +37,21 @@ class _SonglistPageState extends State<SonglistPage> {
                   slivers: <Widget>[
                     // CustomSliverAppBar(headInfo: data),
                     SliverAppBar(
-                      title: Text('歌单'),
-                      leading: GestureDetector(
-                        child: Icon(
-                          Icons.arrow_back_ios_outlined,
-                        ),
-                        onTap: () {
-                          Routes.pop(context);
-                        },
-                      ),
+                      // title: Text('歌单'),
+                      // leading: GestureDetector(
+                      //   child: Icon(
+                      //     Icons.arrow_back_ios_outlined,
+                      //   ),
+                      //   onTap: () {
+                      //     Routes.pop(context);
+                      //   },
+                      // ),
+                      elevation: 0,
                       pinned: true,
+                      automaticallyImplyLeading: false,
                       expandedHeight: HEIGHT_HEADER,
                       //空间大小可变的组件
-                      flexibleSpace: FlexibleSpaceBar(
-                        background: SongListHeader(headInfo: data),
-                      ),
+                      flexibleSpace: SongListHeader(headInfo: data),
                       bottom: MusicListHeader(data),
                     ),
                     SliverList(
@@ -89,9 +89,12 @@ class SongListHeader extends StatelessWidget {
     if (sliverBar != null && sliverBar.bottom != null) {
       bottomPadding = sliverBar.bottom.preferredSize.height;
     }
-    return Container(
+    return ClipRect(
+      //裁剪超出内容,不然BackdropFilter会超出
       child: Stack(
+        fit: StackFit.expand,
         children: [
+          //背景添加视差滚动效果
           Positioned(
             top: -Tween<double>(begin: 0.0, end: deltaExtent / 4.0)
                 .transform(opacity),
@@ -127,6 +130,18 @@ class SongListHeader extends StatelessWidget {
               ),
             ),
           ),
+          Column(
+            children: [
+              AppBar(
+                leading: BackButton(),
+                automaticallyImplyLeading: false,
+                title: Text(opacity > 0.5 ? headInfo.name : '歌单'),
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+                titleSpacing: 16,
+              )
+            ],
+          )
         ],
       ),
     );
@@ -201,113 +216,57 @@ class SongListInfo extends StatelessWidget {
   const SongListInfo({Key key, this.headInfo}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    return Stack(children: <Widget>[
-      Material(
-        color: Colors.transparent,
-        child: Container(
-          padding: EdgeInsets.only(
-              top: MediaQuery.of(context).padding.top + kToolbarHeight),
-          child: Column(
-            children: <Widget>[
-              Container(
-                height: 146,
-                padding: EdgeInsets.only(top: 20),
-                child: Row(
-                  children: <Widget>[
-                    SizedBox(width: 16),
-                    AspectRatio(
-                      aspectRatio: 1,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.all(Radius.circular(3)),
-                        child: Stack(
-                          children: <Widget>[
-                            Hero(
-                              tag: headInfo.heroTag,
-                              child: CachedNetworkImage(
-                                  imageUrl: headInfo.coverUrl),
-                            ),
-                            Container(
-                              padding: EdgeInsets.all(4),
-                              decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                      begin: Alignment.topCenter,
-                                      end: Alignment.bottomCenter,
-                                      colors: [
-                                    Colors.black54,
-                                    Colors.black26,
-                                    Colors.transparent,
-                                    Colors.transparent,
-                                  ])),
-                              child: Align(
-                                alignment: Alignment.topRight,
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: <Widget>[
-                                    Icon(Icons.headset,
-                                        color: Theme.of(context)
-                                            .primaryIconTheme
-                                            .color,
-                                        size: 12),
-                                    Text(getFormattedNumber(headInfo.playCount),
-                                        style: Theme.of(context)
-                                            .primaryTextTheme
-                                            .bodyText2
-                                            .copyWith(fontSize: 11))
-                                  ],
-                                ),
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+    return Material(
+      color: Colors.transparent,
+      child: Container(
+        padding: EdgeInsets.only(
+            top: MediaQuery.of(context).padding.top + kToolbarHeight),
+        child: Column(
+          children: <Widget>[
+            Container(
+              height: 146,
+              padding: EdgeInsets.only(top: 20),
+              child: Row(
+                children: <Widget>[
+                  SizedBox(width: 16),
+                  AspectRatio(
+                    aspectRatio: 1,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.all(Radius.circular(3)),
+                      child: Stack(
                         children: <Widget>[
-                          SizedBox(height: 10),
-                          Text(
-                            headInfo.name,
-                            style: Theme.of(context)
-                                .primaryTextTheme
-                                .headline6
-                                .copyWith(fontSize: 17),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
+                          Hero(
+                            tag: headInfo.heroTag,
+                            child:
+                                CachedNetworkImage(imageUrl: headInfo.coverUrl),
                           ),
-                          SizedBox(height: 10),
-                          InkWell(
-                            onTap: () {
-                              Routes.navigateTo(context, '/test');
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.only(top: 4, bottom: 4),
+                          Container(
+                            padding: EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                    colors: [
+                                  Colors.black54,
+                                  Colors.black26,
+                                  Colors.transparent,
+                                  Colors.transparent,
+                                ])),
+                            child: Align(
+                              alignment: Alignment.topRight,
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: <Widget>[
-                                  SizedBox(
-                                    height: 24,
-                                    width: 24,
-                                    child: ClipOval(
-                                      child: CachedNetworkImage(
-                                          imageUrl:
-                                              headInfo.creator["avatarUrl"]),
-                                    ),
-                                  ),
-                                  Padding(padding: EdgeInsets.only(left: 4)),
-                                  Text(
-                                    headInfo.creator["nickname"],
-                                    style: Theme.of(context)
-                                        .primaryTextTheme
-                                        .bodyText2,
-                                  ),
-                                  Icon(
-                                    Icons.chevron_right,
-                                    color: Theme.of(context)
-                                        .primaryIconTheme
-                                        .color,
-                                  )
+                                  Icon(Icons.headset,
+                                      color: Theme.of(context)
+                                          .primaryIconTheme
+                                          .color,
+                                      size: 12),
+                                  Text(getFormattedNumber(headInfo.playCount),
+                                      style: Theme.of(context)
+                                          .primaryTextTheme
+                                          .bodyText2
+                                          .copyWith(fontSize: 11))
                                 ],
                               ),
                             ),
@@ -315,37 +274,90 @@ class SongListInfo extends StatelessWidget {
                         ],
                       ),
                     ),
-                    SizedBox(width: 16),
-                  ],
-                ),
-              ),
-              SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: <Widget>[
-                  _HeaderAction(
-                      Icons.comment,
-                      headInfo.commentCount > 0
-                          ? headInfo.commentCount.toString()
-                          : "评论"),
-                  _HeaderAction(
-                      Icons.share,
-                      headInfo.shareCount > 0
-                          ? headInfo.shareCount.toString()
-                          : "分享"),
-                  _HeaderAction(Icons.file_download, '下载'),
-                  // _HeaderAction(Icons.check_box, "多选", onSelectionTap),
+                  ),
+                  SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        SizedBox(height: 10),
+                        Text(
+                          headInfo.name,
+                          style: Theme.of(context)
+                              .primaryTextTheme
+                              .headline6
+                              .copyWith(fontSize: 17),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        SizedBox(height: 10),
+                        InkWell(
+                          onTap: () {
+                            Routes.navigateTo(context, '/test');
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 4, bottom: 4),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                SizedBox(
+                                  height: 24,
+                                  width: 24,
+                                  child: ClipOval(
+                                    child: CachedNetworkImage(
+                                        imageUrl:
+                                            headInfo.creator["avatarUrl"]),
+                                  ),
+                                ),
+                                Padding(padding: EdgeInsets.only(left: 4)),
+                                Text(
+                                  headInfo.creator["nickname"],
+                                  style: Theme.of(context)
+                                      .primaryTextTheme
+                                      .bodyText2,
+                                ),
+                                Icon(
+                                  Icons.chevron_right,
+                                  color:
+                                      Theme.of(context).primaryIconTheme.color,
+                                )
+                              ],
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                  SizedBox(width: 16),
                 ],
               ),
-            ],
-          ),
+            ),
+            SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                _HeaderAction(
+                    Icons.comment,
+                    headInfo.commentCount > 0
+                        ? headInfo.commentCount.toString()
+                        : "评论"),
+                _HeaderAction(
+                    Icons.share,
+                    headInfo.shareCount > 0
+                        ? headInfo.shareCount.toString()
+                        : "分享"),
+                _HeaderAction(Icons.file_download, '下载'),
+                // _HeaderAction(Icons.check_box, "多选", onSelectionTap),
+              ],
+            ),
+          ],
         ),
       ),
-    ] //..removeWhere((v) => v == null),
-        );
+    );
   }
 }
 
+// 歌单action
 class _HeaderAction extends StatelessWidget {
   _HeaderAction(this.icon, this.action);
 

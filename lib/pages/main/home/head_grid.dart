@@ -1,4 +1,5 @@
 import 'package:cloud_music/common/const.dart';
+import 'package:cloud_music/routers/routers.dart';
 import 'package:flutter/material.dart';
 // import 'package:cloud_music/routers/routers.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -25,11 +26,7 @@ class HeadGrid extends StatelessWidget {
   Widget _menuItem(context, Map item) {
     return GestureDetector(
       onTap: () {
-        // 打开wenview页面
-        // Routes.navigateTo(context, '/webviewPage',
-        //         params: {'url': item['link'], 'title': item['title']})
-        //     .then((result) {});
-        // print('点击了菜单');
+        Routes.navigateTo(context, item['path']);
       },
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
