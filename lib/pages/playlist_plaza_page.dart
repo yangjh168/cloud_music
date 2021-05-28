@@ -73,20 +73,27 @@ class _PlaylistPlazzPageState extends State<PlaylistPlazzPage>
   }
 
   Widget _playlistTabViewItem(Map item) {
-    return EasyPageList<List<SongMenu>>(
+    return EasyPageList<SongMenu>(
       api: commonApi.getPlaylistList,
-      builder: (context, data) {
-        return Text("2222222222222");
-        // return Column(
-        //   children: data.map((item) {
-        //     return _playItem(item, data);
-        //   }).toList(),
-        // );
+      builder: (BuildContext context, data) {
+        return Container(
+          padding: EdgeInsets.all(20.w),
+          child: GridView.count(
+            childAspectRatio: 0.7, //宽高比
+            crossAxisSpacing: 20.w,
+            shrinkWrap: true,
+            crossAxisCount: 3,
+            physics: NeverScrollableScrollPhysics(), //关闭滚动
+            children: data.map<Widget>((item) {
+              return _playItem(item);
+            }).toList(),
+          ),
+        );
       },
     );
   }
 
-  Widget _playItem(item, context) {
+  Widget _playItem(item) {
     return InkWell(
       onTap: () {
         Routes.navigateTo(context, '/songlistPage', params: {'id': item.id});

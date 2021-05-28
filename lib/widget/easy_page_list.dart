@@ -5,13 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyrefresh/easy_refresh.dart';
 import 'package:async/async.dart';
 
-typedef LoadDataWidgetBuilder<T> = Widget Function(
-    BuildContext context, T result);
-
 class EasyPageList<T> extends StatefulWidget {
   final Function api;
   final Map params;
-  final LoadDataWidgetBuilder<T> builder;
+  final Widget Function(BuildContext context, List result) builder;
   final Widget Function(BuildContext context, BaseResult result) errorBuilder;
   final WidgetBuilder loadingBuilder;
   final WidgetBuilder finishedBuilder;
@@ -60,7 +57,7 @@ class _EasyPageListState<T> extends State<EasyPageList> {
 
   CancelableOperation _loadingTask;
 
-  BaseResult<PageResult<T>> baseResult;
+  BaseResult<PageResult<List<T>>> baseResult;
 
   @override
   void initState() {
@@ -88,12 +85,12 @@ class _EasyPageListState<T> extends State<EasyPageList> {
         widget.params != null ? pagetion.addAll(widget.params) : pagetion;
     var sfuture = widget.api(newParams, null, true);
     print(sfuture);
-    _loadingTask = CancelableOperation<PageResult<T>>.fromFuture(sfuture)
+    _loadingTask = CancelableOperation<PageResult<List<T>>>.fromFuture(sfuture)
       ..value.then((result) {
         print("加载成功");
         print(result);
         assert(result != null, "result can not be null");
-        baseResult = BaseResult.success<PageResult<T>>(result);
+        baseResult = BaseResult.success<PageResult<List<T>>>(result);
       }).catchError((e, StackTrace stack) {
         print("加载失败:" + e.toString());
         if (e is NetError) {
@@ -135,12 +132,11 @@ class _EasyPageListState<T> extends State<EasyPageList> {
   }
 
   Widget _buildContent() {
-    print(context);
-    if (isLoading == true) {
+    if (baseResult == null || isLoading) {
       return (widget.loadingBuilder ??
           EasyPageList.buildSimpleLoadingWidget)(context);
     }
-    if (baseResult == null || baseResult.isSuccess == false) {
+    if (baseResult.isSuccess == false) {
       return LoadErrorWidget(
         errorBuilder:
             widget.errorBuilder ?? EasyPageList.buildSimpleFailedWidget,
@@ -148,12 +144,10 @@ class _EasyPageListState<T> extends State<EasyPageList> {
       );
     }
     List<Widget> pageWidget = [];
-    // T result = baseResult.data.list;
+    print(baseResult.data.list);
     Widget listTep = widget.builder(context, baseResult.data.list);
-    print(listTep);
-    // Widget listTep = Text('111111111111');
     pageWidget.add(listTep);
-    if ((baseResult.data.list as List).length >= baseResult.data.total) {
+    if ((baseResult.data.list).length >= baseResult.data.total) {
       pageWidget.add(
           widget.finishedBuilder ?? EasyPageList.buildSimpleFinishedWidget);
     }
