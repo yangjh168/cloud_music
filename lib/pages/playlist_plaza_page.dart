@@ -15,7 +15,7 @@ class _PlaylistPlazzPageState extends State<PlaylistPlazzPage>
     with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin {
   TabController _controller;
 
-  List categoryList = [];
+  List categoryList;
 
   @override
   bool get wantKeepAlive => true;
@@ -29,7 +29,8 @@ class _PlaylistPlazzPageState extends State<PlaylistPlazzPage>
 
   // 获取热门歌曲分类
   void getPlaylistHotCategoryData() async {
-    var list = await commonApi.getPlaylistHotCategory();
+    List list = await commonApi.getPlaylistHotCategory();
+    list.insert(0, {'id': 0, 'name': '全部'});
     this.setState(() {
       categoryList = list;
       _controller = TabController(length: list.length, vsync: this);
@@ -46,6 +47,9 @@ class _PlaylistPlazzPageState extends State<PlaylistPlazzPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    if (categoryList == null) {
+      return Text("");
+    }
     if (categoryList.isEmpty) {
       return Container(
         child: Text("加载数据失败"),
@@ -67,33 +71,51 @@ class _PlaylistPlazzPageState extends State<PlaylistPlazzPage>
       body: TabBarView(
           controller: _controller,
           children: categoryList.map((item) {
-            return _playlistTabViewItem(item);
+            return PlaylistTabViewItem(item: item);
           }).toList()),
     );
   }
+}
 
-  Widget _playlistTabViewItem(Map item) {
+class PlaylistTabViewItem extends StatefulWidget {
+  final Map item;
+  const PlaylistTabViewItem({Key key, this.item}) : super(key: key);
+  @override
+  _PlaylistTabViewItemState createState() => _PlaylistTabViewItemState();
+}
+
+class _PlaylistTabViewItemState extends State<PlaylistTabViewItem>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
     return EasyPageList<SongMenu>(
+      params: {'cat': widget.item['name']},
       api: commonApi.getPlaylistList,
       builder: (BuildContext context, data) {
         return Container(
           padding: EdgeInsets.all(20.w),
-          child: GridView.count(
-            childAspectRatio: 0.7, //宽高比
-            crossAxisSpacing: 20.w,
-            shrinkWrap: true,
-            crossAxisCount: 3,
-            physics: NeverScrollableScrollPhysics(), //关闭滚动
-            children: data.map<Widget>((item) {
-              return _playItem(item);
-            }).toList(),
-          ),
+          child: GridView.builder(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(), //关闭滚动,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                childAspectRatio: 0.7, //显示区域宽高相等
+                crossAxisSpacing: 20.w,
+                crossAxisCount: 3, //每行三列
+              ),
+              itemCount: data.length,
+              itemBuilder: (context, index) {
+                return _playItem(data[index], context);
+              }),
         );
       },
     );
   }
 
-  Widget _playItem(item) {
+  Widget _playItem(item, context) {
     return InkWell(
       onTap: () {
         Routes.navigateTo(context, '/songlistPage', params: {'id': item.id});

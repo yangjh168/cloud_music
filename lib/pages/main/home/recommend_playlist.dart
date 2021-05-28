@@ -48,13 +48,18 @@ class RecommendPlaylistState extends State<RecommendPlaylist> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text('推荐歌单', style: TextStyle(fontWeight: FontWeight.bold)),
-                  Row(
-                    children: [
-                      Text('更多', style: TextStyle(color: Colors.black38)),
-                      Icon(Icons.arrow_forward_ios_outlined,
-                          color: Colors.black38, size: 24.sp)
-                    ],
-                  )
+                  InkWell(
+                    onTap: () {
+                      Routes.navigateTo(context, '/playlistPlazaPage');
+                    },
+                    child: Row(
+                      children: [
+                        Text('更多', style: TextStyle(color: Colors.black38)),
+                        Icon(Icons.arrow_forward_ios_outlined,
+                            color: Colors.black38, size: 24.sp)
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),

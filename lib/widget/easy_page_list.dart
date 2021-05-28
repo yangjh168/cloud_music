@@ -1,5 +1,3 @@
-import 'package:cloud_music/dio/dio_utils.dart';
-import 'package:cloud_music/entity/base_result.dart';
 import 'package:cloud_music/entity/page_result.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyrefresh/easy_refresh.dart';
@@ -9,7 +7,7 @@ class EasyPageList<T> extends StatefulWidget {
   final Function api;
   final Map params;
   final Widget Function(BuildContext context, List result) builder;
-  final Widget Function(BuildContext context, BaseResult result) errorBuilder;
+  final Widget Function(BuildContext context) errorBuilder;
   final WidgetBuilder loadingBuilder;
   final WidgetBuilder finishedBuilder;
 
@@ -27,10 +25,9 @@ class EasyPageList<T> extends StatefulWidget {
     return SimpleLoading(height: 200);
   }
 
-  static Widget buildSimpleFailedWidget(
-      BuildContext context, BaseResult result) {
+  static Widget buildSimpleFailedWidget(BuildContext context) {
     return SimpleFailed(
-      message: result.msg,
+      message: "服务器开小差了~",
       retry: () {
         EasyPageList.of(context).refresh();
       },
@@ -50,56 +47,73 @@ class EasyPageList<T> extends StatefulWidget {
 }
 
 class _EasyPageListState<T> extends State<EasyPageList> {
-  int limit = 50;
-  int offset = 0;
-
-  bool get isLoading => _loadingTask != null;
-
   CancelableOperation _loadingTask;
 
-  BaseResult<PageResult<List<T>>> baseResult;
+  //每页条数
+  int limit = 50;
+  //页码
+  int offset = 1;
+  //总条数
+  int total = 0;
+  //是否加载中
+  bool get isLoading => _loadingTask != null;
+  //列表数据
+  List<T> list;
+  //是否加载失败
+  bool isError = false;
+  //是否加载完成
+  bool get isFinished => (list != null && !isLoading && list.length >= total);
 
   @override
   void initState() {
     super.initState();
-    refresh();
+    // refresh();
   }
 
   ///refresh data
   // force: true在加载过程中强制刷新
   Future<void> refresh({bool force: false}) async {
-    print("刷新数据");
-    _loadData(widget.api, force: false);
+    print("下拉刷新");
+    offset = 1;
+    Map pagetion = {'limit': limit, 'offset': offset};
+    if (widget.params != null) {
+      var params = new Map.from(widget.params);
+      pagetion.addAll(params);
+    }
+    _loadData(params: pagetion, force: force);
   }
 
-  Future _loadData(Function future, {bool force = false}) {
-    assert(future != null);
+  Future<void> load({bool force: false}) async {
+    print("上拉加载");
+    Map pagetion = {'limit': limit, 'offset': offset};
+    if (widget.params != null) {
+      var params = new Map.from(widget.params);
+      pagetion.addAll(params);
+    }
+    _loadData(params: pagetion, force: force);
+  }
+
+  Future _loadData({Map params, bool force = false}) {
     assert(force != null);
 
     if (_loadingTask != null && !force) {
       return _loadingTask.value;
     }
     _loadingTask?.cancel();
-    var pagetion = {'limit': limit, 'offset': offset};
-    var newParams =
-        widget.params != null ? pagetion.addAll(widget.params) : pagetion;
-    var sfuture = widget.api(newParams, null, true);
-    print(sfuture);
-    _loadingTask = CancelableOperation<PageResult<List<T>>>.fromFuture(sfuture)
+    var future = widget.api(params, null, true);
+    // print(future);
+    _loadingTask = CancelableOperation<PageResult<List<T>>>.fromFuture(future)
       ..value.then((result) {
         print("加载成功");
-        print(result);
         assert(result != null, "result can not be null");
-        baseResult = BaseResult.success<PageResult<List<T>>>(result);
+        total = result.total;
+        list = list ?? [];
+        list.addAll(result.list);
+        isError = false;
+        offset += 1;
       }).catchError((e, StackTrace stack) {
         print("加载失败:" + e.toString());
-        if (e is NetError) {
-          baseResult = BaseResult.error(code: e.code, msg: e.msg);
-        } else {
-          // assert(e is Map, "未知错误：$e，请检查api是否提供正确，或api中是否存在awiat!");
-          baseResult = BaseResult.error(code: 500, msg: '未知错误');
-        }
-        _onError(e, stack);
+        isError = true;
       }).whenComplete(() {
         print("加载完成");
         _loadingTask = null;
@@ -109,8 +123,6 @@ class _EasyPageListState<T> extends State<EasyPageList> {
     setState(() {});
     return _loadingTask.value;
   }
-
-  void _onError(e, StackTrace stack) {}
 
   @override
   void dispose() {
@@ -122,32 +134,49 @@ class _EasyPageListState<T> extends State<EasyPageList> {
   @override
   Widget build(BuildContext context) {
     return EasyRefresh(
+      firstRefresh: true,
       header: MaterialHeader(),
-      bottomBouncing: false, //底部回弹
+      // footer: ClassicalFooter(
+      //   enableHapticFeedback: false,
+      //   // bgColor: Colors.white,
+      //   // textColor: Colors.pink,
+      //   // infoColor: Colors.pink,
+      //   loadText: '上拉加载',
+      //   loadingText: '加载中...',
+      //   loadReadyText: '释放加载',
+      //   loadedText: '',
+      //   loadFailedText: '加载失败',
+      //   showInfo: false,
+      //   noMoreText: '我也是有底线的',
+      // ),
+      // bottomBouncing: false, //底部回弹
       child: _buildContent(),
       onRefresh: () async {
         refresh();
+      },
+      onLoad: () async {
+        load();
       },
     );
   }
 
   Widget _buildContent() {
-    if (baseResult == null || isLoading) {
-      return (widget.loadingBuilder ??
-          EasyPageList.buildSimpleLoadingWidget)(context);
-    }
-    if (baseResult.isSuccess == false) {
+    // if (baseResult == null) {
+    //   return (widget.loadingBuilder ??
+    //       EasyPageList.buildSimpleLoadingWidget)(context);
+    // }
+    if (isError) {
       return LoadErrorWidget(
         errorBuilder:
             widget.errorBuilder ?? EasyPageList.buildSimpleFailedWidget,
-        result: baseResult,
       );
     }
     List<Widget> pageWidget = [];
-    print(baseResult.data.list);
-    Widget listTep = widget.builder(context, baseResult.data.list);
-    pageWidget.add(listTep);
-    if ((baseResult.data.list).length >= baseResult.data.total) {
+    if (list != null) {
+      Widget listTep = widget.builder(context, list);
+      pageWidget.add(listTep);
+    }
+    if (isFinished) {
       pageWidget.add(
           widget.finishedBuilder ?? EasyPageList.buildSimpleFinishedWidget);
     }
@@ -157,17 +186,15 @@ class _EasyPageListState<T> extends State<EasyPageList> {
 
 // 加载错误组件
 class LoadErrorWidget extends StatelessWidget {
-  final BaseResult result;
-  final Widget Function(BuildContext context, BaseResult result) errorBuilder;
+  final Widget Function(BuildContext context) errorBuilder;
 
-  const LoadErrorWidget(
-      {Key key, @required this.result, @required this.errorBuilder})
+  const LoadErrorWidget({Key key, @required this.errorBuilder})
       : assert(errorBuilder != null),
         super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return errorBuilder(context, result);
+    return errorBuilder(context);
   }
 }
 
