@@ -1,5 +1,5 @@
+import 'package:cloud_music/provider/audio_store.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_music/provider/player_store.dart';
 import 'package:cloud_music/model/lyric.dart';
 
 typedef void PositionChangeHandler(int millisecond);
@@ -35,8 +35,8 @@ class LyricState extends State<LyricPanel> {
 
   @override
   Widget build(BuildContext context) {
-    PlayerStore player = PlayerStore.of(context);
-    this.onAudioPositionChanged(player);
+    AudioStore audioStore = AudioStore.of(context);
+    this.onAudioPositionChanged(audioStore);
     return new Container(
       child: new Center(
         child: new Container(
@@ -82,9 +82,9 @@ class LyricState extends State<LyricPanel> {
     return items;
   }
 
-  resetIndex(player) {
-    if (player.position != null) {
-      int ms = player.position.inMilliseconds;
+  resetIndex(audioStore) {
+    if (audioStore.position != null) {
+      int ms = audioStore.position.inMilliseconds;
       for (int i = 0; i < widget.lyric.list.length; i++) {
         LyricModel model = widget.lyric.list[i];
         if (ms >= model.millisecond) {
@@ -99,20 +99,19 @@ class LyricState extends State<LyricPanel> {
     }
   }
 
-  onAudioPositionChanged(player) {
-    if (player.position != null) {
-      int ms = player.position.inMilliseconds;
+  onAudioPositionChanged(audioStore) {
+    if (audioStore.position != null) {
+      int ms = audioStore.position.inMilliseconds;
       // ms 在前一个之前或者后一个之后，就需要重新定位index了
       if ((index > 0 && ms <= widget.lyric.list[index - 1].millisecond) ||
           (index < widget.lyric.list.length - 1 &&
               ms >= widget.lyric.list[index + 1].millisecond)) {
-        resetIndex(player);
+        resetIndex(audioStore);
         return;
       }
-
       LyricModel model = widget.lyric.list[index];
       if (ms > model.millisecond) {
-        index++;
+        if (index < widget.lyric.list.length - 1) index++;
         setState(() {
           currentModel = model;
         });

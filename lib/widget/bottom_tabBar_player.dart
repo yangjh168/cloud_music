@@ -3,6 +3,7 @@
 // import 'package:cloud_music/music_player/widget/player.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_music/entity/music.dart';
+import 'package:cloud_music/provider/audio_store.dart';
 import 'package:cloud_music/provider/player_store.dart';
 import 'package:cloud_music/routers/routers.dart';
 import 'package:flutter/material.dart';
@@ -53,8 +54,9 @@ class _AnimationPlayer extends State<AnimationPlayer>
   @override
   Widget build(BuildContext context) {
     PlayerStore player = PlayerStore.of(context);
+    AudioStore audioStore = AudioStore.of(context);
     Music music = player.music;
-    if (player.isPlaying) {
+    if (audioStore.isPlaying) {
       //开始动画
       _animationController.forward();
     } else {
@@ -100,7 +102,7 @@ class _AnimationPlayer extends State<AnimationPlayer>
                     ),
                   ),
           ),
-          !player.isPlaying
+          !audioStore.isPlaying
               ? (Positioned(
                   top: 0,
                   left: 0,

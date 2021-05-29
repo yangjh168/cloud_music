@@ -5,6 +5,7 @@ import 'package:cloud_music/model/lyric.dart';
 import 'package:cloud_music/music_player/playing_list.dart';
 import 'package:cloud_music/music_player/utils/lyric.dart';
 import 'package:cloud_music/music_player/widget/lyricPannel.dart';
+import 'package:cloud_music/provider/audio_store.dart';
 import 'package:cloud_music/provider/player_store.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui';
@@ -53,11 +54,12 @@ class PlayerPageState extends State<PlayerPage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     PlayerStore player = PlayerStore.of(context);
+    AudioStore audioStore = AudioStore.of(context);
     Music music = player.music;
     if (music == null) {
       return Container();
     }
-    bool isPlaying = player.isPlaying;
+    bool isPlaying = audioStore.isPlaying;
     if (panel != null) {
       if (panel.musicId != music.id || panel.platform != music.platform) {
         print("重新加载歌词");
@@ -146,7 +148,11 @@ class PlayerPageState extends State<PlayerPage> with TickerProviderStateMixin {
               ),
               new Padding(
                 padding: const EdgeInsets.only(bottom: 20.0),
-                child: buildPannel(context, player),
+                child: new Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: buildContent(audioStore, player),
+                ),
               ),
             ],
           ),
@@ -187,9 +193,10 @@ class PlayerPageState extends State<PlayerPage> with TickerProviderStateMixin {
           Lyric lyric = LyricUtil.formatLyric(lrcString);
           setState(() {
             panel = new LyricPanel(
-                musicId: player.music.id,
-                platform: player.music.platform,
-                lyric: lyric);
+              musicId: player.music.id,
+              platform: player.music.platform,
+              lyric: lyric,
+            );
           });
         } catch (e) {
           print("加载歌词失败");
@@ -242,19 +249,12 @@ class PlayerPageState extends State<PlayerPage> with TickerProviderStateMixin {
   //   player.next();
   // }
 
-  Widget buildPannel(BuildContext context, PlayerStore player) {
-    return new Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: buildContent(context, player),
-    );
-  }
-
-  List<Widget> buildContent(BuildContext context, PlayerStore player) {
+  List<Widget> buildContent(AudioStore audioStore, PlayerStore player) {
     //进度
     double sliderValue;
-    if (player.position != null && player.duration != null) {
-      sliderValue = (player.position.inSeconds / player.duration.inSeconds);
+    if (audioStore.position != null && audioStore.duration != null) {
+      sliderValue =
+          (audioStore.position.inSeconds / audioStore.duration.inSeconds);
     }
     //播放模式
     final playMode = player.playMode;
@@ -295,7 +295,7 @@ class PlayerPageState extends State<PlayerPage> with TickerProviderStateMixin {
               onPressed: player.playHandle,
               padding: const EdgeInsets.all(0.0),
               icon: new Icon(
-                player.isPlaying ? Icons.pause : Icons.play_arrow,
+                audioStore.isPlaying ? Icons.pause : Icons.play_arrow,
                 size: 48.0,
                 color: widget.color,
               ),
@@ -325,9 +325,9 @@ class PlayerPageState extends State<PlayerPage> with TickerProviderStateMixin {
       ),
       new Slider(
         onChanged: (newValue) {
-          if (player.duration != null) {
-            int seconds = (player.duration.inSeconds * newValue).round();
-            player.seek(new Duration(seconds: seconds));
+          if (audioStore.duration != null) {
+            int seconds = (audioStore.duration.inSeconds * newValue).round();
+            audioStore.seek(new Duration(seconds: seconds));
           }
         },
         value: sliderValue ?? 0.0,
@@ -338,7 +338,7 @@ class PlayerPageState extends State<PlayerPage> with TickerProviderStateMixin {
           horizontal: 16.0,
           vertical: 8.0,
         ),
-        child: buildTimer(context, player),
+        child: buildTimer(context, audioStore),
       ),
     ];
 
@@ -349,18 +349,22 @@ class PlayerPageState extends State<PlayerPage> with TickerProviderStateMixin {
     return list;
   }
 
-  Widget buildTimer(BuildContext context, PlayerStore player) {
+  Widget buildTimer(BuildContext context, AudioStore audioStore) {
     final style = new TextStyle(color: widget.color);
     return new Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       mainAxisSize: MainAxisSize.max,
       children: <Widget>[
         new Text(
-          player.position == null ? "--:--" : formatDuration(player.position),
+          audioStore.position == null
+              ? "--:--"
+              : formatDuration(audioStore.position),
           style: style,
         ),
         new Text(
-          player.duration == null ? "--:--" : formatDuration(player.duration),
+          audioStore.duration == null
+              ? "--:--"
+              : formatDuration(audioStore.duration),
           style: style,
         ),
       ],

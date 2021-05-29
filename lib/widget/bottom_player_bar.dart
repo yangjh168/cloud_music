@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_music/entity/music.dart';
 import 'package:cloud_music/music_player/playing_list.dart';
+import 'package:cloud_music/provider/audio_store.dart';
 import 'package:cloud_music/provider/index_store.dart';
 import 'package:cloud_music/provider/player_store.dart';
 import 'package:flutter/material.dart';
@@ -48,6 +49,7 @@ class BottomControllerBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     PlayerStore player = PlayerStore.of(context);
+    AudioStore audioStore = AudioStore.of(context);
     Music music = player.music;
     if (music == null) {
       return Container();
@@ -114,7 +116,7 @@ class BottomControllerBar extends StatelessWidget {
                 onPressed: player.playHandle,
                 padding: const EdgeInsets.all(0.0),
                 icon: new Icon(
-                  player.isPlaying ? Icons.pause : Icons.play_arrow,
+                  audioStore.isPlaying ? Icons.pause : Icons.play_arrow,
                   size: 32.0,
                 ),
               ),

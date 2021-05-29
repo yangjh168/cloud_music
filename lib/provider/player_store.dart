@@ -3,9 +3,11 @@ import 'package:cloud_music/api/common.dart';
 import 'package:cloud_music/entity/music.dart';
 import 'package:cloud_music/entity/play_queue.dart';
 import 'package:cloud_music/music_player/play_mode.dart';
+import 'package:cloud_music/provider/audio_store.dart';
 // import 'package:cloud_music/music_player/player_controller.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_music/hive/extensions.dart';
@@ -16,64 +18,38 @@ class PlayerStore extends ChangeNotifier {
     return Provider.of<PlayerStore>(context, listen: listen);
   }
 
-  // 播放器
-  final AudioPlayer audioPlayer = new AudioPlayer();
+  // 单例模式
+  // 工厂模式
+  factory PlayerStore(Box playerBox) => _getInstance(playerBox);
+  static PlayerStore get instance => _getInstance();
+  static PlayerStore _instance;
+  PlayerStore._internal(Box playerBox) {
+    // 初始化
+    this.playerBox = playerBox;
+    this.initAudioPlayer();
+  }
+  static PlayerStore _getInstance([Box playerBox]) {
+    if (_instance == null) {
+      assert(playerBox != null, "PlayerStore还没初始化，请先提供playerBox进行初始化");
+      _instance = new PlayerStore._internal(playerBox);
+    }
+    return _instance;
+  }
+
   // 当前播放音乐
   Music music;
-  // 当前播放状态
-  AudioPlayerState status = AudioPlayerState.STOPPED;
-  // 当前播放时间
-  Duration duration;
-  // 音频的当前位置
-  Duration position;
-  // 播放队列
-  PlayQueue playQueue;
-  // 音量
-  final double volume = 1.0;
   // 是否是本地资源
   final bool isLocal = false;
-  // 当前是否播放状态
-  bool get isPlaying => (status == AudioPlayerState.PLAYING);
+
+  // 播放队列
+  PlayQueue playQueue;
+
   // 播放模式
   PlayMode playMode;
 
   Box playerBox;
 
-  // 构造函数
-  PlayerStore(Box playerBox) {
-    this.playerBox = playerBox;
-    this.initAudioPlayer();
-  }
-  // 初始化播放器的监听事件
   void initAudioPlayer() {
-    audioPlayer
-      //音频播放完毕事件
-      ..onPlayerCompletion.listen((void s) {
-        next();
-        notifyListeners();
-      })
-      // 改变状态事件
-      ..onPlayerStateChanged.listen((AudioPlayerState state) {
-        print("播放器状态改变");
-        this.status = state;
-        notifyListeners();
-      })
-      // 播放错误事件
-      ..onPlayerError.listen((String e) {
-        print("播放错误");
-        notifyListeners();
-      })
-      //持续时间事件
-      ..onDurationChanged.listen((value) {
-        this.duration = value;
-        notifyListeners();
-      })
-      //更新音频的当前位置事件
-      ..onAudioPositionChanged.listen((value) {
-        this.position = value;
-        notifyListeners();
-      });
-
     //初始默认播放模式
     // this.playMode = PlayMode.sequence;
     this.playMode = this.playerBox.getPlayMode();
@@ -95,9 +71,14 @@ class PlayerStore extends ChangeNotifier {
     var playable = await commonApi.checkMusic({'id': id, 'platform': platform});
     if (playable == null) {
       print("音乐不可用");
-      // showDialog(context: context, builder: (context) => DialogNoCopyRight());
+      Fluttertoast.showToast(
+        msg: "音乐不可用",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+      );
       return;
     }
+    print("音乐可用");
 
     final res =
         await commonApi.getMusicDetail({'id': id, 'platform': platform});
@@ -116,36 +97,27 @@ class PlayerStore extends ChangeNotifier {
       this.playerBox.saveCurrentMusic(music);
     }
     start();
+    notifyListeners();
   }
 
   //开始播放
   start() {
-    if (this.music != null) {
-      audioPlayer.play(
-        this.music.url,
-        isLocal: this.isLocal,
-        volume: this.volume,
-      );
-    }
+    AudioStore.instance.play(music);
   }
 
   //暂停
   pause() {
-    audioPlayer.pause();
+    AudioStore.instance.pause();
   }
 
   //继续播放
   resume() {
-    audioPlayer.resume();
-  }
-
-  // 跳过音频
-  seek(Duration d) {
-    audioPlayer.seek(d);
+    AudioStore.instance.resume();
   }
 
   //处理播放、暂停按钮事件
   playHandle() {
+    AudioPlayerState status = AudioStore.instance.status;
     if ((status == AudioPlayerState.STOPPED ||
             status == AudioPlayerState.COMPLETED) &&
         this.music != null) {

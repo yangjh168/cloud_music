@@ -2,6 +2,7 @@ import 'package:cloud_music/entity/music.dart';
 import 'package:cloud_music/provider/player_store.dart';
 import 'package:flutter/material.dart';
 
+// 播放队列弹窗
 class PlayingListDialog extends StatefulWidget {
   static void show(BuildContext context) {
     showModalBottomSheet(
@@ -34,7 +35,7 @@ class PlayingListDialogState extends State<PlayingListDialog> {
 
   @override
   Widget build(BuildContext context) {
-    PlayerStore player = PlayerStore.of(context, listen: true);
+    PlayerStore player = PlayerStore.of(context);
     final playingList = player.playQueue.queue;
     final music = player.music;
     return _PlayingListContainer(
