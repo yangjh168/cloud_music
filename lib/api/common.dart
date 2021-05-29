@@ -1,6 +1,7 @@
 import 'package:cloud_music/entity/model.dart';
 import 'package:cloud_music/entity/page_result.dart';
 import 'package:cloud_music/entity/playlist_detail.dart';
+import 'package:cloud_music/entity/rank_list.dart';
 import 'package:cloud_music/entity/song_menu.dart';
 import 'package:dio/dio.dart';
 import '../dio/http_utils.dart';
@@ -83,5 +84,20 @@ class CommonApi {
         .map((item) => SongMenu.fromJson(item))
         .toList();
     return PageResult(response['total'], list);
+  }
+
+  // 获取排行榜信息
+  Future getRankTopList([Map data, Options options, bool capture]) async {
+    var response =
+        await HttpUtils.get('/toplist/detail', data, options, capture);
+    response['rank'] = (response['rank'] as List)
+        .cast<Map>()
+        .map((item) => RankList.fromJson(item))
+        .toList();
+    response['other'] = (response['other'] as List)
+        .cast<Map>()
+        .map((item) => RankList.fromJson(item))
+        .toList();
+    return response;
   }
 }

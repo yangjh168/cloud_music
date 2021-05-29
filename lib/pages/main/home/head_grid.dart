@@ -3,6 +3,7 @@ import 'package:cloud_music/routers/routers.dart';
 import 'package:flutter/material.dart';
 // import 'package:cloud_music/routers/routers.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class HeadGrid extends StatelessWidget {
   @override
@@ -26,7 +27,16 @@ class HeadGrid extends StatelessWidget {
   Widget _menuItem(context, Map item) {
     return GestureDetector(
       onTap: () {
-        Routes.navigateTo(context, item['path']);
+        if (item['path'] != null) {
+          Routes.navigateTo(context, item['path']);
+        } else {
+          Fluttertoast.showToast(
+            msg: "暂未完成",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER,
+            fontSize: 26.0.sp,
+          );
+        }
       },
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,

@@ -1,5 +1,6 @@
 import 'package:cloud_music/music_player/player_page.dart';
 import 'package:cloud_music/pages/layout/slide_drawer.dart';
+import 'package:cloud_music/pages/rank/rank_page.dart';
 import 'package:cloud_music/pages/search_page.dart';
 import 'package:cloud_music/pages/songlist_page.dart';
 import 'package:cloud_music/pages/daily_recommend_page.dart';
@@ -13,4 +14,5 @@ final Map<String, Function> routers = {
   '/songlistPage': (params) => SonglistPage(id: params['id']),
   '/dailyRecommendPage': (params) => DailyRecommendPage(),
   '/playlistPlazaPage': (params) => PlaylistPlazzPage(),
+  '/rankPage': (params) => RankPage(),
 };

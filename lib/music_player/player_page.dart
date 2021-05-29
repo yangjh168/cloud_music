@@ -61,8 +61,6 @@ class PlayerPageState extends State<PlayerPage> with TickerProviderStateMixin {
     if (panel != null) {
       if (panel.musicId != music.id || panel.platform != music.platform) {
         print("重新加载歌词");
-        print(panel.musicId != music.id);
-        print(panel.platform != music.platform);
         this.onMusicPanelChanged();
       }
     } else {

@@ -62,6 +62,7 @@ class _PlaylistPlazzPageState extends State<PlaylistPlazzPage>
         title: Text('歌单广场'),
         bottom: TabBar(
           controller: _controller,
+          indicatorColor: Colors.white,
           isScrollable: true, //tab可滚动
           tabs: categoryList.map((item) {
             return Tab(text: item['name']);
