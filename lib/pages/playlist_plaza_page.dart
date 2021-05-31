@@ -94,7 +94,7 @@ class _PlaylistTabViewItemState extends State<PlaylistTabViewItem>
   Widget build(BuildContext context) {
     super.build(context);
     return EasyPageList<SongMenu>(
-      params: {'cat': widget.item['name']},
+      params: {'cat': widget.item['name'], 'id': widget.item['id']},
       api: commonApi.getPlaylistList,
       builder: (BuildContext context, data) {
         return Container(
@@ -124,16 +124,15 @@ class _PlaylistTabViewItemState extends State<PlaylistTabViewItem>
       child: Column(
         children: [
           Container(
+            width: double.infinity,
+            height: 240.h,
             alignment: Alignment.center,
-            color: Colors.black12,
             margin: EdgeInsets.only(bottom: 10.0.h),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(5),
               child: CachedNetworkImage(
                 imageUrl: item.picUrl,
                 placeholder: (context, url) => Container(
-                  width: 130,
-                  height: 130,
                   child: Center(
                     child: CircularProgressIndicator(
                       strokeWidth: 1,
@@ -141,7 +140,7 @@ class _PlaylistTabViewItemState extends State<PlaylistTabViewItem>
                   ),
                 ),
                 errorWidget: (context, url, error) => Icon(Icons.error),
-                fit: BoxFit.fitWidth,
+                fit: BoxFit.cover,
               ),
             ),
           ),

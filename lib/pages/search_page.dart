@@ -319,7 +319,7 @@ class SearchResultPage extends StatelessWidget {
         onTap: () {
           PlayerStore player = PlayerStore.of(context, listen: false);
           if (player.music == null || player.music.id != item.id) {
-            player.play(id: item.id, platform: item.platform);
+            player.play(music: item);
           }
         },
         child: Container(

@@ -26,32 +26,6 @@ class PlayerPageState extends State<PlayerPage> with TickerProviderStateMixin {
   LyricPanel panel;
 
   @override
-  void initState() {
-    super.initState();
-
-    SchedulerBinding.instance.addPostFrameCallback((_) {
-      // resetPanelData();
-      // player.onDurationChanged(this.onDurationChanged);
-      // player.onAudioPositionChanged(this.onAudioPositionChanged);
-      // player.onStatusChanged(this.onPlayerStatus);
-      // player.onError(this.onError);
-      // player.onMusicChanged(this.onMusicChanged);
-      // player.onCompleted(this.onPlayerCompleted);
-    });
-  }
-
-  @override
-  void deactivate() {
-    // player.offDurationChanged(this.onDurationChanged);
-    // player.offAudioPositionChanged(this.onAudioPositionChanged);
-    // player.offStatusChanged(this.onPlayerStatus);
-    // player.offError(this.onError);
-    // player.offMusicChanged(this.onMusicChanged);
-    // player.offCompleted(this.onPlayerCompleted);
-    super.deactivate();
-  }
-
-  @override
   Widget build(BuildContext context) {
     PlayerStore player = PlayerStore.of(context);
     AudioStore audioStore = AudioStore.of(context);
@@ -167,6 +141,7 @@ class PlayerPageState extends State<PlayerPage> with TickerProviderStateMixin {
     PlayerStore player = PlayerStore.of(context, listen: false);
     if (player.music != null) {
       var id = player.music.id;
+      print("歌曲平台：" + player.music.platform.toString());
       if (player.music.platform == 1) {
         try {
           //先从文件缓存中查找，没有再发送请求获取
@@ -175,6 +150,7 @@ class PlayerPageState extends State<PlayerPage> with TickerProviderStateMixin {
           String cached = await lyricCache.get(key);
           String lrcString;
           // String tlyricString;
+          print("缓存中是否有歌词" + (cached != null).toString());
           if (cached != null) {
             lrcString = cached;
           } else {
@@ -205,36 +181,6 @@ class PlayerPageState extends State<PlayerPage> with TickerProviderStateMixin {
     }
   }
 
-  //持续时间事件
-  // onDurationChanged(Duration duration) {
-  //   setState(() {
-  //     this.duration = duration;
-  //     if (position != null) {
-  //       this.sliderValue = (position.inSeconds / duration.inSeconds);
-  //     }
-  //   });
-  // }
-
-  // // 更新音频的当前位置事件
-  // onAudioPositionChanged(Duration position) {
-  //   setState(() {
-  //     this.position = position;
-
-  //     if (duration != null) {
-  //       this.sliderValue = (position.inSeconds / duration.inSeconds);
-  //     }
-  //   });
-  // }
-
-  // //播放错误事件
-  // onError(String e) {
-  //   Scaffold.of(context).showSnackBar(
-  //     new SnackBar(
-  //       content: new Text(e),
-  //     ),
-  //   );
-  // }
-
   //改变歌曲
   onMusicPanelChanged() {
     setState(() {
@@ -242,12 +188,6 @@ class PlayerPageState extends State<PlayerPage> with TickerProviderStateMixin {
     });
     resetPanelData();
   }
-
-  // // 音频播放完毕事件
-  // onPlayerCompleted() {
-  //   print('onPlayerCompleted =======================');
-  //   player.next();
-  // }
 
   List<Widget> buildContent(AudioStore audioStore, PlayerStore player) {
     //进度

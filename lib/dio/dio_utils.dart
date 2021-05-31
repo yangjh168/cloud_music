@@ -74,9 +74,9 @@ class DioUtils {
       }
       Dio _dio = createInstance();
       options = options ?? Options();
-      options = options.merge(method: MethodValues[method]);
+      options = options.copyWith(method: MethodValues[method]);
       options =
-          options.merge(headers: {'platform': GlobalData.instance.platform});
+          options.copyWith(headers: {'platform': GlobalData.instance.platform});
       Map<String, dynamic> queryParameters;
       // get请求处理
       if (method != null && MethodValues[method] == 'get' && data != null) {
@@ -177,8 +177,8 @@ class ExceptionHandle {
 
   static NetError handleException(DioError error) {
     if (error is DioError) {
-      if (error.type == DioErrorType.DEFAULT ||
-          error.type == DioErrorType.RESPONSE) {
+      if (error.type == DioErrorType.other ||
+          error.type == DioErrorType.response) {
         dynamic e = error.error;
         if (e is SocketException) {
           return NetError(socket_error, '网络异常，请检查你的网络！');
@@ -190,12 +190,12 @@ class ExceptionHandle {
           return NetError(parse_error, '数据解析错误！');
         }
         return NetError(net_error, '网络异常，请检查你的网络！');
-      } else if (error.type == DioErrorType.CONNECT_TIMEOUT ||
-          error.type == DioErrorType.SEND_TIMEOUT ||
-          error.type == DioErrorType.RECEIVE_TIMEOUT) {
+      } else if (error.type == DioErrorType.connectTimeout ||
+          error.type == DioErrorType.sendTimeout ||
+          error.type == DioErrorType.receiveTimeout) {
         //  连接超时 || 请求超时 || 响应超时
         return NetError(timeout_error, '连接超时！');
-      } else if (error.type == DioErrorType.CANCEL) {
+      } else if (error.type == DioErrorType.cancel) {
         return NetError(cancel_error, '取消请求');
       } else {
         return NetError(unknown_error, '未知异常');

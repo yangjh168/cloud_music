@@ -1,7 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_music/entity/music.dart';
+import 'package:cloud_music/provider/player_store.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class MusicTileDialog extends StatefulWidget {
   final Music music;
@@ -35,27 +37,58 @@ class MusicTileDialogState extends State<MusicTileDialog> {
       {
         'icon': Icons.play_circle_outline,
         'name': '下一首播放',
-        'event': () => {},
+        'event': (context) => {
+              PlayerStore.instance.nextPlay(widget.music),
+              Fluttertoast.showToast(
+                msg: "添加成功",
+                toastLength: Toast.LENGTH_SHORT,
+                gravity: ToastGravity.CENTER,
+              )
+            },
       },
       {
         'icon': Icons.favorite_border,
         'name': '收藏到歌单',
-        'event': () => {},
+        'event': (context) => {
+              Fluttertoast.showToast(
+                msg: "待开发",
+                toastLength: Toast.LENGTH_SHORT,
+                gravity: ToastGravity.CENTER,
+              )
+            },
       },
       {
         'icon': Icons.download_rounded,
         'name': '下载',
-        'event': () => {},
+        'event': (context) => {
+              Fluttertoast.showToast(
+                msg: "待开发",
+                toastLength: Toast.LENGTH_SHORT,
+                gravity: ToastGravity.CENTER,
+              )
+            },
       },
       {
         'icon': Icons.account_circle_outlined,
         'name': '歌手：' + widget.music.artist[0].name,
-        'event': () => {},
+        'event': (context) => {
+              Fluttertoast.showToast(
+                msg: "待开发",
+                toastLength: Toast.LENGTH_SHORT,
+                gravity: ToastGravity.CENTER,
+              )
+            },
       },
       {
         'icon': Icons.album_outlined,
         'name': '专辑：' + widget.music.album.name,
-        'event': () => {},
+        'event': (context) => {
+              Fluttertoast.showToast(
+                msg: "待开发",
+                toastLength: Toast.LENGTH_SHORT,
+                gravity: ToastGravity.CENTER,
+              )
+            },
       },
     ];
     this.setState(() {
@@ -182,7 +215,7 @@ class _MusicActionItem extends StatelessWidget {
     return Ink(
       child: InkWell(
         onTap: () {
-          action['event']();
+          action['event'](context);
         },
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 15),

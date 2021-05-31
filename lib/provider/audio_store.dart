@@ -3,6 +3,7 @@ import 'package:cloud_music/entity/play_queue.dart';
 import 'package:cloud_music/provider/player_store.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 
@@ -88,15 +89,24 @@ class AudioStore extends ChangeNotifier {
     notifyListeners();
   }
 
-  // PlayerController transportControls = PlayerController(this);
-
   //开始播放
-  play(music, {bool isLocal = false}) {
-    print("开始播放，播放链接：" + music.url.toString());
-    if (music != null) {
+  play(music, {bool isLocal = true}) async {
+    audioPlayer.stop();
+    print("开始播放，歌曲链接：" + music.url.toString());
+    String path;
+    var info = await DefaultCacheManager().getFileFromCache(music.url);
+    print("缓存中是否有该歌曲：" + (info != null).toString());
+    if (info != null) {
+      path = info.file.path;
+    } else {
+      var file = await DefaultCacheManager().getSingleFile(music.url);
+      path = file.dirname + '/' + file.basename;
+    }
+    print("本地歌曲链接：" + path);
+    if (path != null) {
       this.isError = false;
       audioPlayer.play(
-        music.url,
+        path,
         isLocal: isLocal,
         volume: this.volume,
       );

@@ -65,38 +65,49 @@ class PlayerStore extends ChangeNotifier {
   // PlayerController transportControls = PlayerController(this);
 
   //准备播放
-  play({int id, int platform, PlayQueue playQueue}) async {
-    print("播放音乐：" + id.toString() + platform.toString());
-
-    var playable = await commonApi.checkMusic({'id': id, 'platform': platform});
-    if (playable == null) {
-      print("音乐不可用");
-      Fluttertoast.showToast(
-        msg: "音乐不可用",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER,
-      );
-      return;
-    }
-    print("音乐可用");
-
-    final res =
-        await commonApi.getMusicDetail({'id': id, 'platform': platform});
-    Music music = Music.fromMap(res);
-
-    if (playQueue != null) {
-      this.playQueue = playQueue;
-    } else {
-      if (this.playQueue.queue.indexOf(music) == -1) {
-        this.playQueue.queue.add(music);
+  play({Music music, PlayQueue playQueue}) async {
+    var _muisc = music;
+    print("播放音乐：" +
+        _muisc.title +
+        "，id：" +
+        _muisc.id.toString() +
+        "，平台：" +
+        _muisc.platform.toString());
+    if (_muisc.url == null) {
+      var playable = await commonApi
+          .checkMusic({'id': _muisc.id, 'platform': _muisc.platform});
+      if (playable == null) {
+        print("音乐不可用");
+        Fluttertoast.showToast(
+          msg: "音乐不可用",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+        );
+        return;
       }
+      print("音乐可用");
+
+      final res = await commonApi
+          .getMusicDetail({'id': _muisc.id, 'platform': _muisc.platform});
+      Music newMusic = Music.fromMap(res);
+
+      if (playQueue != null) {
+        this.playQueue = playQueue;
+      } else {
+        if (this.playQueue.queue.indexOf(newMusic) == -1) {
+          this.playQueue.queue.add(newMusic);
+        }
+      }
+      this.playerBox.savePlayQueue(this.playQueue);
+      if (newMusic != null) {
+        this.music = newMusic;
+        this.playerBox.saveCurrentMusic(newMusic);
+      }
+      start();
+    } else {
+      this.music = _muisc;
+      AudioStore.instance.play(_muisc);
     }
-    this.playerBox.savePlayQueue(this.playQueue);
-    if (music != null) {
-      this.music = music;
-      this.playerBox.saveCurrentMusic(music);
-    }
-    start();
     notifyListeners();
   }
 
@@ -143,9 +154,7 @@ class PlayerStore extends ChangeNotifier {
     if (i < 0) {
       i = this.playQueue.queue.length - 1;
     }
-    play(
-        id: this.playQueue.queue[i].id,
-        platform: this.playQueue.queue[i].platform);
+    play(music: this.playQueue.queue[i]);
   }
 
   //处理下一首按钮事件
@@ -162,15 +171,14 @@ class PlayerStore extends ChangeNotifier {
     if (i >= this.playQueue.queue.length) {
       i = 0;
     }
-    play(
-        id: this.playQueue.queue[i].id,
-        platform: this.playQueue.queue[i].platform);
+    play(music: this.playQueue.queue[i]);
   }
 
   //设置播放模式
   setPlayMode(PlayMode mode) {
     this.playMode = mode;
     this.playerBox.savePlayMode(mode);
+    notifyListeners();
   }
 
   //歌单队列添加歌曲
@@ -178,11 +186,29 @@ class PlayerStore extends ChangeNotifier {
     print("添加歌曲到队列");
     this.playQueue.queue.add(music);
     this.playerBox.savePlayQueue(this.playQueue);
+    notifyListeners();
   }
 
   //歌单队列删除歌曲
   queueRemoveMusic(Music music) {
     this.playQueue.queue.remove(music);
     this.playerBox.savePlayQueue(this.playQueue);
+    notifyListeners();
+  }
+
+  //下一首播放
+  nextPlay(Music music) {
+    //如果队列中存在该歌曲，则删除后再在指定位置插入
+    if (this.playQueue.queue.indexOf(music) != -1) {
+      this.playQueue.queue.remove(music);
+    }
+    int index = this.playQueue.queue.indexOf(this.music);
+    if (index != -1) {
+      this.playQueue.queue.insert(index + 1, music);
+      this.playerBox.savePlayQueue(this.playQueue);
+      notifyListeners();
+    } else {
+      this.play(music: music);
+    }
   }
 }

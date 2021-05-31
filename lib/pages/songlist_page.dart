@@ -168,8 +168,7 @@ class MusicListHeader extends StatelessWidget implements PreferredSizeWidget {
             PlayerStore player = PlayerStore.of(context, listen: false);
             if (headInfo.musicList.length > 0) {
               player.play(
-                  id: headInfo.musicList[0].id,
-                  platform: headInfo.musicList[0].platform,
+                  music: headInfo.musicList[0],
                   playQueue: PlayQueue(
                       queueId: headInfo.id,
                       queueTitle: headInfo.name,
@@ -455,8 +454,7 @@ class SongListBuild extends StatelessWidget {
           PlayerStore player = PlayerStore.of(context, listen: false);
           if (player.music == null || player.music.id != item.id) {
             player.play(
-                id: item.id,
-                platform: item.platform,
+                music: item,
                 playQueue: PlayQueue(
                     queueId: songListInfo.id,
                     queueTitle: songListInfo.name,

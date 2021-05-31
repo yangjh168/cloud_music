@@ -94,16 +94,15 @@ class RecommendPlaylistState extends State<RecommendPlaylist> {
       child: Column(
         children: [
           Container(
+            width: double.infinity,
+            height: 220.h,
             alignment: Alignment.center,
-            color: Colors.black12,
             margin: EdgeInsets.only(bottom: 10.0.h),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(5),
               child: CachedNetworkImage(
                 imageUrl: item.picUrl,
                 placeholder: (context, url) => Container(
-                  width: 130,
-                  height: 130,
                   child: Center(
                     child: CircularProgressIndicator(
                       strokeWidth: 1,
@@ -111,7 +110,7 @@ class RecommendPlaylistState extends State<RecommendPlaylist> {
                   ),
                 ),
                 errorWidget: (context, url, error) => Icon(Icons.error),
-                fit: BoxFit.fitWidth,
+                fit: BoxFit.cover,
               ),
             ),
           ),

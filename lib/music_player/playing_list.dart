@@ -189,7 +189,7 @@ class _MusicTile extends StatelessWidget {
       onTap: () {
         PlayerStore player = PlayerStore.of(context, listen: false);
         if (player.music == null || player.music.id != music.id) {
-          player.play(id: music.id, platform: music.platform);
+          player.play(music: music);
         }
       },
       child: Container(

@@ -95,7 +95,7 @@ class _HomePageState extends State<HomePage>
 class PlatformDropdown extends StatelessWidget {
   final List itemList = [
     {'name': '网易云', 'value': 1},
-    {'name': '酷狗', 'value': 2},
+    // {'name': '酷狗', 'value': 2},
     {'name': '酷我', 'value': 3},
   ];
 
