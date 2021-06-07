@@ -128,14 +128,13 @@ class PlayerStore extends ChangeNotifier {
 
   //处理播放、暂停按钮事件
   playHandle() {
-    AudioPlayerState status = AudioStore.instance.status;
-    if ((status == AudioPlayerState.STOPPED ||
-            status == AudioPlayerState.COMPLETED) &&
+    PlayerState status = AudioStore.instance.status;
+    if ((status == PlayerState.STOPPED || status == PlayerState.COMPLETED) &&
         this.music != null) {
       start();
-    } else if (status == AudioPlayerState.PLAYING) {
+    } else if (status == PlayerState.PLAYING) {
       pause();
-    } else if (status == AudioPlayerState.PAUSED) {
+    } else if (status == PlayerState.PAUSED) {
       resume();
     }
   }

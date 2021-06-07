@@ -33,7 +33,7 @@ class AudioStore extends ChangeNotifier {
   final AudioPlayer audioPlayer = new AudioPlayer();
 
   // 当前播放状态
-  AudioPlayerState status = AudioPlayerState.STOPPED;
+  PlayerState status = PlayerState.STOPPED;
   // 当前播放时间
   Duration duration;
   // 音频的当前位置
@@ -44,7 +44,7 @@ class AudioStore extends ChangeNotifier {
   final double volume = 1.0;
 
   // 当前是否播放状态
-  bool get isPlaying => (status == AudioPlayerState.PLAYING);
+  bool get isPlaying => (status == PlayerState.PLAYING);
 
   //是否播放错误
   bool isError = false;
@@ -60,7 +60,7 @@ class AudioStore extends ChangeNotifier {
         }
       })
       // 改变状态事件
-      ..onPlayerStateChanged.listen((AudioPlayerState state) {
+      ..onPlayerStateChanged.listen((PlayerState state) {
         print("播放器状态改变");
         this.status = state;
         notifyListeners();
@@ -130,14 +130,14 @@ class AudioStore extends ChangeNotifier {
 
   //处理播放、暂停按钮事件
   playHandle() {
-    // if ((status == AudioPlayerState.STOPPED ||
-    //         status == AudioPlayerState.COMPLETED) &&
+    // if ((status == PlayerState.STOPPED ||
+    //         status == PlayerState.COMPLETED) &&
     //     this.music != null) {
     //   start();
     // } else
-    if (status == AudioPlayerState.PLAYING) {
+    if (status == PlayerState.PLAYING) {
       pause();
-    } else if (status == AudioPlayerState.PAUSED) {
+    } else if (status == PlayerState.PAUSED) {
       resume();
     }
   }
