@@ -1,9 +1,12 @@
 import 'dart:ui';
 
+import 'package:cloud_music/android/android_back_desktop.dart';
 import 'package:cloud_music/pages/index_page.dart';
 import 'package:cloud_music/repository/global_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_music/widget/slide_container.dart';
+import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class SlideDrawer extends StatefulWidget {
   @override
@@ -11,6 +14,8 @@ class SlideDrawer extends StatefulWidget {
 }
 
 class _SlideDrawerState extends State<SlideDrawer> {
+  DateTime lastPopTime;
+
   double position = 0.0;
   double height = 0.0;
 
@@ -30,8 +35,29 @@ class _SlideDrawerState extends State<SlideDrawer> {
     final double opacity = position * 0.6;
     //存储
     GlobalData.instance.slideKey = _slideKey;
-    return Container(
+    return WillPopScope(
       // margin: EdgeInsets.only(top: statusBarHeight),
+      onWillPop: () async {
+        // 点击返回键的操作
+        AndroidBackTop.backDeskTop(); //设置为返回不退出app
+        return false;
+        //退出提示
+        // if (lastPopTime == null ||
+        //     DateTime.now().difference(lastPopTime) > Duration(seconds: 2)) {
+        //   lastPopTime = DateTime.now();
+        //   Fluttertoast.showToast(
+        //     msg: "再按一次退出",
+        //     toastLength: Toast.LENGTH_SHORT,
+        //     gravity: ToastGravity.BOTTOM,
+        //   );
+        //   return false;
+        // } else {
+        //   lastPopTime = DateTime.now();
+        //   // 退出app
+        //   await SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+        // }
+        // return false;
+      },
       child: SlideStack(
         drawer: DrawerPage(),
         child: SlideContainer(
