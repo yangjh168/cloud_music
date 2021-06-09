@@ -1,8 +1,8 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_music/api/common.dart';
 import 'package:cloud_music/api/netease.dart';
 import 'package:cloud_music/entity/song_menu.dart';
 import 'package:cloud_music/routers/routers.dart';
+import 'package:cloud_music/widget/cache_image.dart';
 import 'package:cloud_music/widget/load_data_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -72,6 +72,7 @@ class RecommendPlaylistState extends State<RecommendPlaylist> {
                   child: GridView.count(
                     childAspectRatio: 0.7, //宽高比
                     crossAxisSpacing: 20.w,
+                    mainAxisSpacing: 10.0.w,
                     shrinkWrap: true,
                     crossAxisCount: 3,
                     physics: NeverScrollableScrollPhysics(), //关闭滚动
@@ -95,23 +96,10 @@ class RecommendPlaylistState extends State<RecommendPlaylist> {
         children: [
           Container(
             width: double.infinity,
-            height: 220.h,
-            alignment: Alignment.center,
-            margin: EdgeInsets.only(bottom: 10.0.h),
-            child: ClipRRect(
+            height: 230.w,
+            child: CacheImage(
               borderRadius: BorderRadius.circular(5),
-              child: CachedNetworkImage(
-                imageUrl: item.picUrl,
-                placeholder: (context, url) => Container(
-                  child: Center(
-                    child: CircularProgressIndicator(
-                      strokeWidth: 1,
-                    ),
-                  ),
-                ),
-                errorWidget: (context, url, error) => Icon(Icons.error),
-                fit: BoxFit.cover,
-              ),
+              url: item.picUrl,
             ),
           ),
           Text(item.name,

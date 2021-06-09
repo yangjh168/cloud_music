@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_music/api/common.dart';
 import 'package:cloud_music/entity/rank_list.dart';
 import 'package:cloud_music/routers/routers.dart';
+import 'package:cloud_music/widget/cache_image.dart';
 import 'package:cloud_music/widget/page_load_future.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -155,23 +156,10 @@ class RankPageState extends State<RankPage> {
         children: [
           Container(
             width: double.infinity,
-            height: 220.h,
-            alignment: Alignment.center,
-            margin: EdgeInsets.only(bottom: 10.0.h),
-            child: ClipRRect(
+            height: 230.w,
+            child: CacheImage(
               borderRadius: BorderRadius.circular(5),
-              child: CachedNetworkImage(
-                imageUrl: item.coverImgUrl,
-                placeholder: (context, url) => Container(
-                  child: Center(
-                    child: CircularProgressIndicator(
-                      strokeWidth: 1,
-                    ),
-                  ),
-                ),
-                errorWidget: (context, url, error) => Icon(Icons.error),
-                fit: BoxFit.cover,
-              ),
+              url: item.coverImgUrl,
             ),
           ),
           Text(item.name,

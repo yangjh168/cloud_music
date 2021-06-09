@@ -1,7 +1,7 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_music/api/common.dart';
 import 'package:cloud_music/entity/song_menu.dart';
 import 'package:cloud_music/routers/routers.dart';
+import 'package:cloud_music/widget/cache_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cloud_music/widget/easy_page_list.dart';
@@ -106,6 +106,7 @@ class _PlaylistTabViewItemState extends State<PlaylistTabViewItem>
                 childAspectRatio: 0.7, //显示区域宽高相等
                 crossAxisSpacing: 20.w,
                 crossAxisCount: 3, //每行三列
+                mainAxisSpacing: 10.0.w,
               ),
               itemCount: data.length,
               itemBuilder: (context, index) {
@@ -125,23 +126,10 @@ class _PlaylistTabViewItemState extends State<PlaylistTabViewItem>
         children: [
           Container(
             width: double.infinity,
-            height: 240.h,
-            alignment: Alignment.center,
-            margin: EdgeInsets.only(bottom: 10.0.h),
-            child: ClipRRect(
+            height: 230.w,
+            child: CacheImage(
               borderRadius: BorderRadius.circular(5),
-              child: CachedNetworkImage(
-                imageUrl: item.picUrl,
-                placeholder: (context, url) => Container(
-                  child: Center(
-                    child: CircularProgressIndicator(
-                      strokeWidth: 1,
-                    ),
-                  ),
-                ),
-                errorWidget: (context, url, error) => Icon(Icons.error),
-                fit: BoxFit.cover,
-              ),
+              url: item.picUrl,
             ),
           ),
           Text(item.name,
