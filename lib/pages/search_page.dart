@@ -1,6 +1,7 @@
 import 'package:cloud_music/api/common.dart';
 import 'package:cloud_music/dialog/music_tile_dialog.dart';
 import 'package:cloud_music/entity/music.dart';
+import 'package:cloud_music/provider/index_store.dart';
 import 'package:cloud_music/provider/player_store.dart';
 import 'package:cloud_music/provider/search_store.dart';
 import 'package:flutter/material.dart';
@@ -8,10 +9,16 @@ import 'package:flutter_easyrefresh/easy_refresh.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cloud_music/routers/routers.dart';
 import 'package:cloud_music/widget/platform_logo.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+
+//定义通知类
+class CustomNotification extends Notification {
+  final int data;
+  CustomNotification(this.data);
+}
 
 class SearchPage extends StatefulWidget {
   final String query;
-
   SearchPage({Key key, this.query}) : super(key: key);
 
   @override
@@ -23,6 +30,7 @@ class _SearchPageState extends State<SearchPage>
   TextEditingController _queryTextController = TextEditingController();
   FocusNode _focusNode = FocusNode();
   String query; //搜索关键字
+  int platform;
   List<Music> resultList; //搜索结果集
   //搜索历史仓库
   SearchStore _searchHistory = SearchStore();
@@ -35,6 +43,7 @@ class _SearchPageState extends State<SearchPage>
     super.initState();
     setState(() {
       query = widget.query ?? '';
+      platform = IndexStore.of(context, listen: false).currentPlatform;
     });
   }
 
@@ -44,10 +53,15 @@ class _SearchPageState extends State<SearchPage>
     // _currentBody = _SearchBody.results;
     String keyword = _queryTextController.text;
     if (keyword.isEmpty) {
+      Fluttertoast.showToast(
+        msg: "请输入搜索内容",
+        gravity: ToastGravity.CENTER,
+      );
       return;
     }
     _searchHistory.insertSearchHistory(keyword);
-    var res = await commonApi.getSearchResultList({'keyword': keyword});
+    var res = await commonApi
+        .getSearchResultList({'keyword': keyword, 'platform': platform});
     List<Music> songs = (res['list'] as List)
         .cast<Map>()
         .map((item) => Music.fromMap(item))
@@ -96,7 +110,7 @@ class _SearchPageState extends State<SearchPage>
           leadingWidth: 40.0,
           title: Container(
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(50.0.w)),
+              borderRadius: BorderRadius.all(Radius.circular(50.0)),
               color: Theme.of(context).scaffoldBackgroundColor,
             ),
             constraints: BoxConstraints(maxHeight: 35),
@@ -110,16 +124,26 @@ class _SearchPageState extends State<SearchPage>
               },
               onChanged: (val) {},
               textAlignVertical: TextAlignVertical.bottom,
-              style: TextStyle(fontSize: 26.0.sp),
+              style: TextStyle(fontSize: 15),
               textInputAction: TextInputAction.search,
               keyboardType: TextInputType.text,
               decoration: InputDecoration(
                 focusColor: Colors.black,
                 border: OutlineInputBorder(borderSide: BorderSide.none),
                 hintText: '请输入',
-                hintStyle: TextStyle(fontSize: 26.0.sp),
-                prefixIcon: Icon(Icons.search, color: Colors.black45),
-                prefixStyle: TextStyle(fontSize: 24.sp),
+                hintStyle: TextStyle(fontSize: 15),
+                // prefixIcon: Icon(Icons.search, color: Colors.black45),
+                // prefixStyle: TextStyle(fontSize: 24.sp),
+                prefixIcon: NotificationListener<CustomNotification>(
+                  onNotification: (notification) {
+                    // 收到子Widget通知，更新数据
+                    setState(() {
+                      platform = notification.data;
+                    });
+                    return false;
+                  },
+                  child: PlatformDropdown(platform: platform),
+                ),
                 // suffixIcon: GestureDetector(
                 //   onTap: () {},
                 //   child: Icon(Icons.camera_alt_outlined, color: Colors.black45),
@@ -367,6 +391,62 @@ class SearchResultPage extends StatelessWidget {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+//平台下拉选择框
+class PlatformDropdown extends StatelessWidget {
+  final int platform;
+  final List itemList = [
+    {'name': '网易云', 'value': 1},
+    // {'name': '酷狗', 'value': 2},
+    {'name': '酷我', 'value': 3},
+  ];
+
+  PlatformDropdown({Key key, this.platform}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    // IndexStore indexStore = IndexStore.of(context, listen: false);
+    // int currentPlatform = indexStore.currentPlatform;
+    //保存到全部变量中，便于发送请求时获取
+    // GlobalData.instance.platform = currentPlatform;
+    Color fontColor = Colors.black87;
+    return Container(
+      // height: 35,
+      margin: EdgeInsets.only(right: 10, left: 15),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton(
+          items: itemList.map((item) {
+            return DropdownMenuItem(
+              // child: Text(item['name'], style: TextStyle(color: Color(0xff4a4a4a))),
+              child: Text(item['name']),
+              value: item['value'],
+            );
+          }).toList(),
+          hint: Text('请选择'),
+          value: platform,
+          onChanged: (value) {
+            // indexStore.setCurrentPlatform(value);
+            CustomNotification(value).dispatch(context);
+          },
+          style: TextStyle(
+            //设置文本框里面文字的样式
+            color: fontColor,
+            fontSize: 15,
+          ),
+          //自定义已选样式
+          selectedItemBuilder: (BuildContext context) {
+            return itemList.map((item) {
+              return Text(item['name']);
+            }).toList();
+          },
+          isDense: true, //是否降低按钮的高度
+          iconSize: 25.0,
+          iconEnabledColor: fontColor,
         ),
       ),
     );

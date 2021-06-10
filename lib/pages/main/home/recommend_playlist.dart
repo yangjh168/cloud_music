@@ -1,5 +1,4 @@
 import 'package:cloud_music/api/common.dart';
-import 'package:cloud_music/api/netease.dart';
 import 'package:cloud_music/entity/song_menu.dart';
 import 'package:cloud_music/routers/routers.dart';
 import 'package:cloud_music/widget/cache_image.dart';

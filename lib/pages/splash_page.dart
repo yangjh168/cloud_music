@@ -72,8 +72,7 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
     //   Provider.of<PlayListModel>(context).user = userModel.user;
     // } else
     //   NavigatorUtil.goLoginPage(context);
-    Routes.navigateTo(context, '/slideDrawer',
-        clearStack: true); //clearStack清空栈
+    Routes.navigateTo(context, '/indexPage', clearStack: true); //clearStack清空栈
   }
 
   @override

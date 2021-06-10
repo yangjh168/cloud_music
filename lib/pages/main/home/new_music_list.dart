@@ -3,6 +3,7 @@ import 'package:cloud_music/dialog/music_tile_dialog.dart';
 import 'package:cloud_music/entity/model.dart';
 import 'package:cloud_music/entity/music.dart';
 import 'package:cloud_music/provider/player_store.dart';
+import 'package:cloud_music/widget/cache_image.dart';
 import 'package:cloud_music/widget/load_data_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -79,13 +80,12 @@ class NewMusicListState extends State<NewMusicList> {
           child: Row(
             children: [
               Container(
-                color: Colors.yellow,
                 width: 80.0.w,
                 height: 80.0.w,
                 margin: EdgeInsets.only(right: 5),
-                child: ClipRRect(
+                child: CacheImage(
                   borderRadius: BorderRadius.circular(5),
-                  child: Image.network(item.imageUrl),
+                  url: item.imageUrl,
                 ),
               ),
               Expanded(

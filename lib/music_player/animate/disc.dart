@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/animation.dart';
 import 'package:flutter/material.dart';
 
@@ -89,7 +90,7 @@ class DiscState extends State<Disc> with SingleTickerProviderStateMixin {
                 shape: BoxShape.circle,
                 image: DecorationImage(
                   alignment: Alignment.topCenter,
-                  image: NetworkImage(widget.cover),
+                  image: CachedNetworkImageProvider(widget.cover),
                 ),
               ),
             ),

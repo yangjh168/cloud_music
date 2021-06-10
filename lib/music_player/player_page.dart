@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_music/Cache/lyric_cache.dart';
 import 'package:cloud_music/api/netease.dart';
 import 'package:cloud_music/entity/music.dart';
@@ -11,7 +12,6 @@ import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'animate/pointer.dart';
 import 'animate/disc.dart';
-import 'package:flutter/scheduler.dart';
 
 class PlayerPage extends StatefulWidget {
   final Color color;
@@ -50,7 +50,7 @@ class PlayerPageState extends State<PlayerPage> with TickerProviderStateMixin {
         new Container(
           decoration: new BoxDecoration(
             image: new DecorationImage(
-              image: NetworkImage(music.album.coverImageUrl),
+              image: CachedNetworkImageProvider(music.album.coverImageUrl),
               fit: BoxFit.cover,
               colorFilter: new ColorFilter.mode(
                 Colors.black54,

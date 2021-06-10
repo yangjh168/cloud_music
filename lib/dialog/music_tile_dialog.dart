@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_music/entity/music.dart';
 import 'package:cloud_music/provider/player_store.dart';
+import 'package:cloud_music/widget/cache_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -126,24 +127,12 @@ class MusicTileDialogState extends State<MusicTileDialog> {
       child: Row(
         children: [
           Container(
-            color: Colors.yellow,
             width: 80.0.w,
             height: 80.0.w,
             margin: EdgeInsets.only(right: 5),
-            child: ClipRRect(
+            child: CacheImage(
               borderRadius: BorderRadius.circular(5),
-              child: CachedNetworkImage(
-                imageUrl: widget.music.imageUrl,
-                placeholder: (context, url) => Container(
-                  child: Center(
-                    child: CircularProgressIndicator(
-                      strokeWidth: 1,
-                    ),
-                  ),
-                ),
-                errorWidget: (context, url, error) => Icon(Icons.error),
-                fit: BoxFit.cover,
-              ),
+              url: widget.music.imageUrl,
             ),
           ),
           Expanded(

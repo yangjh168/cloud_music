@@ -41,8 +41,11 @@ class PlayerStore extends ChangeNotifier {
   // 是否是本地资源
   final bool isLocal = false;
 
-  // 播放队列
+  // 当前播放队列
   PlayQueue playQueue;
+
+  //全部队列
+  List<PlayQueue> queueList;
 
   // 播放模式
   PlayMode playMode;
@@ -77,7 +80,6 @@ class PlayerStore extends ChangeNotifier {
       var playable = await commonApi
           .checkMusic({'id': _muisc.id, 'platform': _muisc.platform});
       if (playable == null) {
-        print("音乐不可用");
         Fluttertoast.showToast(
           msg: "音乐不可用",
           toastLength: Toast.LENGTH_SHORT,
@@ -85,28 +87,23 @@ class PlayerStore extends ChangeNotifier {
         );
         return;
       }
-      print("音乐可用");
-
       final res = await commonApi
           .getMusicDetail({'id': _muisc.id, 'platform': _muisc.platform});
       Music newMusic = Music.fromMap(res);
-
-      if (playQueue != null) {
-        this.playQueue = playQueue;
-      } else {
-        if (this.playQueue.queue.indexOf(newMusic) == -1) {
-          this.playQueue.queue.add(newMusic);
-        }
-      }
-      this.playerBox.savePlayQueue(this.playQueue);
-      if (newMusic != null) {
-        this.music = newMusic;
-        this.playerBox.saveCurrentMusic(newMusic);
-      }
-      start();
+      _muisc = newMusic;
+    }
+    if (playQueue != null) {
+      this.playQueue = playQueue;
     } else {
+      if (this.playQueue.queue.indexOf(_muisc) == -1) {
+        this.playQueue.queue.add(_muisc);
+      }
+    }
+    this.playerBox.savePlayQueue(this.playQueue);
+    if (_muisc != null) {
       this.music = _muisc;
-      AudioStore.instance.play(_muisc);
+      this.playerBox.saveCurrentMusic(_muisc);
+      start();
     }
     notifyListeners();
   }

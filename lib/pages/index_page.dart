@@ -1,106 +1,53 @@
-import 'package:cloud_music/widget/bottom_tabBar_player.dart';
+import 'package:cloud_music/android/android_back_desktop.dart';
+import 'package:cloud_music/provider/audio_store.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:cloud_music/pages/main/home_page.dart';
-import 'package:cloud_music/pages/main/user_page.dart';
-import 'package:cloud_music/provider/index_store.dart';
-import 'package:provider/provider.dart';
+import 'package:cloud_music/pages/layout/slide_drawer.dart';
+import 'package:cloud_music/pages/main_page.dart';
+import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class IndexPage extends StatefulWidget {
+  const IndexPage({Key key}) : super(key: key);
+
   @override
   _IndexPageState createState() => _IndexPageState();
 }
 
 class _IndexPageState extends State<IndexPage> {
-  final pageController = PageController();
+  DateTime lastPopTime;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      bottomNavigationBar:
-          CustomBottomNavigationBar(pageController: pageController),
-      body: PageView(
-        controller: pageController,
-        // onPageChanged: (int index) {
-        //   setState(() {
-        //     currentIndex = index;
-        //   });
-        // },
-        children: [
-          HomePage(),
-          UserPage(),
-        ],
-        physics: NeverScrollableScrollPhysics(), // 禁止滑动
-      ),
-    );
-  }
-}
-
-//把bottomNavigationBar单独拆出来，避免切换tab会重新build相关页面
-class CustomBottomNavigationBar extends StatelessWidget {
-  final PageController pageController;
-
-  final activeTabbarColor = Colors.blue;
-  final unActiveTababarColor = Color(0xff646566);
-
-  CustomBottomNavigationBar({Key key, this.pageController}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    IndexStore indexStore = Provider.of<IndexStore>(context);
-    int viewIndex = indexStore.currentIndex;
-    void changeFuc(index) {
-      if (viewIndex != index) {
-        indexStore.setCurrentIndex(index);
-        pageController.jumpToPage(index);
-      }
-    }
-
-    return BottomAppBar(
-      color: Colors.white,
-      child: Row(
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: <Widget>[
-          Expanded(
-              flex: 1,
-              child: bottomTabBarItem(
-                  0, '首页', Icons.music_video_outlined, viewIndex, changeFuc)),
-          SizedBox(child: bottomTabBarPlayer()),
-          Expanded(
-              flex: 1,
-              child: bottomTabBarItem(
-                  1, '我的', Icons.account_circle, viewIndex, changeFuc)),
-        ],
-      ),
-    );
-  }
-
-  Widget bottomTabBarItem(int index, String label, IconData icon, int viewIndex,
-      Function changeFuc) {
-    Color color = viewIndex == index ? activeTabbarColor : unActiveTababarColor;
-    //构造返回的Widget
-    Widget item = InkResponse(
-      child: Padding(
-        padding: EdgeInsets.only(top: 5.0, bottom: 5.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Icon(icon, color: color),
-            Text(label, style: TextStyle(color: color))
-          ],
-        ),
-      ),
-      onTap: () {
-        changeFuc(index);
+    return WillPopScope(
+      // 点击返回键的操作
+      onWillPop: () async {
+        bool isPlaying = AudioStore.of(context, listen: false).isPlaying;
+        //如果时正在播放音乐，则返回进入后台播放，不退出
+        if (isPlaying) {
+          //设置为返回不退出app
+          AndroidBackTop.backDeskTop();
+        } else {
+          // 退出提示
+          if (lastPopTime == null ||
+              DateTime.now().difference(lastPopTime) > Duration(seconds: 2)) {
+            lastPopTime = DateTime.now();
+            Fluttertoast.showToast(
+              msg: "再按一次退出",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.BOTTOM,
+            );
+            return false;
+          } else {
+            lastPopTime = DateTime.now();
+            // 退出app
+            await SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+          }
+        }
+        return false;
       },
+      child: SlideDrawer(
+        child: MainPage(),
+      ),
     );
-    return item;
-  }
-
-  Widget bottomTabBarPlayer() {
-    return AnimationPlayer();
   }
 }

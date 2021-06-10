@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_music/api/common.dart';
 import 'package:cloud_music/entity/rank_list.dart';
 import 'package:cloud_music/routers/routers.dart';
@@ -72,36 +71,23 @@ class RankPageState extends State<RankPage> {
 
   Widget _rankItem(RankList item) {
     return Container(
-      height: 110,
+      height: 150.h,
       child: InkWell(
         onTap: () {
           Routes.navigateTo(context, '/songlistPage', params: {'id': item.id});
         },
         child: Container(
-          padding: EdgeInsets.symmetric(vertical: 5),
+          padding: EdgeInsets.symmetric(vertical: 5.h),
           child: Row(
             children: [
               Column(
                 children: [
                   Container(
-                    height: 100,
-                    width: 100,
-                    child: ClipRRect(
+                    height: 140.h,
+                    width: 140.h,
+                    child: CacheImage(
                       borderRadius: BorderRadius.circular(5),
-                      child: CachedNetworkImage(
-                        imageUrl: item.coverImgUrl,
-                        placeholder: (context, url) => Container(
-                          width: 100,
-                          height: 100,
-                          child: Center(
-                            child: CircularProgressIndicator(
-                              strokeWidth: 1,
-                            ),
-                          ),
-                        ),
-                        errorWidget: (context, url, error) => Icon(Icons.error),
-                        fit: BoxFit.fitWidth,
-                      ),
+                      url: item.coverImgUrl,
                     ),
                   ),
                 ],

@@ -1,8 +1,6 @@
-import 'package:cloud_music/provider/index_store.dart';
 import 'package:cloud_music/repository/global_repository.dart';
 import 'package:cloud_music/routers/routers.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cloud_music/pages/main/home/netease_home.dart';
 
 class HomePage extends StatefulWidget {
@@ -55,7 +53,7 @@ class _HomePageState extends State<HomePage>
         leadingWidth: 40.0,
         title: Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.all(Radius.circular(50.0.w)),
+            borderRadius: BorderRadius.all(Radius.circular(50.0)),
             color: Theme.of(context).scaffoldBackgroundColor,
           ),
           constraints: BoxConstraints(maxHeight: 35),
@@ -67,7 +65,7 @@ class _HomePageState extends State<HomePage>
             child: TextField(
               textAlignVertical:
                   TextAlignVertical.bottom, //文字偏上用TextAlignVertical.bottom修正
-              style: TextStyle(fontSize: 26.0.sp),
+              style: TextStyle(fontSize: 15),
               textInputAction: TextInputAction.search,
               keyboardType: TextInputType.text,
               decoration: InputDecoration(
@@ -77,67 +75,15 @@ class _HomePageState extends State<HomePage>
                     borderSide:
                         BorderSide.none), //border不能直接使用InputBorder.none，否则文字不居中
                 hintText: '搜索',
-                hintStyle: TextStyle(fontSize: 26.0.sp),
+                hintStyle: TextStyle(fontSize: 15),
                 prefixIcon: Icon(Icons.search, color: Colors.black45),
-                prefixStyle: TextStyle(fontSize: 24.sp),
+                prefixStyle: TextStyle(fontSize: 14),
               ),
             ),
           ),
         ),
-        actions: [PlatformDropdown()],
       ),
       body: NeteaseHome(),
-    );
-  }
-}
-
-//平台下拉选择框
-class PlatformDropdown extends StatelessWidget {
-  final List itemList = [
-    {'name': '网易云', 'value': 1},
-    // {'name': '酷狗', 'value': 2},
-    {'name': '酷我', 'value': 3},
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    IndexStore indexStore = IndexStore.of(context);
-    int currentPlatform = indexStore.currentPlatform;
-    //保存到全部变量中，便于发送请求时获取
-    GlobalData.instance.platform = currentPlatform;
-    return Container(
-      height: 35,
-      margin: EdgeInsets.only(right: 10),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton(
-          items: itemList.map((item) {
-            return DropdownMenuItem(
-              child: Text(item['name'],
-                  style: TextStyle(color: Color(0xff4a4a4a))),
-              value: item['value'],
-            );
-          }).toList(),
-          hint: Text('请选择'),
-          value: currentPlatform,
-          onChanged: (value) {
-            indexStore.setCurrentPlatform(value);
-          },
-          style: TextStyle(
-            //设置文本框里面文字的样式
-            color: Colors.white,
-            fontSize: 16,
-          ),
-          //自定义已选样式
-          selectedItemBuilder: (BuildContext context) {
-            return itemList.map((item) {
-              return Text(item['name']);
-            }).toList();
-          },
-          isDense: true, //是否降低按钮的高度
-          iconSize: 25.0,
-          iconEnabledColor: Colors.white,
-        ),
-      ),
     );
   }
 }
