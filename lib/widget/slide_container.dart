@@ -214,10 +214,15 @@ class ContainerState extends State<SlideContainer>
   double getDelta(DragUpdateDetails details) =>
       isSlideVertical ? details.delta.dy : details.delta.dx;
 
+  bool get isOpen => () {
+        final AnimationStatus status = animationController.status;
+        final bool isOpen = status == AnimationStatus.completed ||
+            status == AnimationStatus.forward;
+        return isOpen;
+      }();
+
   void openOrClose() {
-    final AnimationStatus status = animationController.status;
-    final bool isOpen = status == AnimationStatus.completed ||
-        status == AnimationStatus.forward;
+    final bool isOpen = this.isOpen;
     // Reset dragTarget in close state. It's import!!!
     // Or the containerOffset value will be zero.
     dragTarget = isOpen ? dragTarget : 1.0;

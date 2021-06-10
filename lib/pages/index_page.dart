@@ -1,5 +1,6 @@
 import 'package:cloud_music/android/android_back_desktop.dart';
 import 'package:cloud_music/provider/audio_store.dart';
+import 'package:cloud_music/repository/global_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_music/pages/layout/slide_drawer.dart';
 import 'package:cloud_music/pages/main_page.dart';
@@ -21,6 +22,12 @@ class _IndexPageState extends State<IndexPage> {
     return WillPopScope(
       // 点击返回键的操作
       onWillPop: () async {
+        //当侧边栏处于打开状态时，则关闭侧边栏
+        var _slideKey = GlobalData.instance.slideKey;
+        if (_slideKey != null && _slideKey.currentState.isOpen) {
+          _slideKey.currentState.openOrClose();
+          return false;
+        }
         bool isPlaying = AudioStore.of(context, listen: false).isPlaying;
         //如果时正在播放音乐，则返回进入后台播放，不退出
         if (isPlaying) {

@@ -88,7 +88,10 @@ class CustomBottomNavigationBar extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            Icon(icon, color: color),
+            Container(
+              child: Icon(icon, color: color),
+              margin: EdgeInsets.symmetric(vertical: 3.0),
+            ),
             Text(label, style: TextStyle(color: color))
           ],
         ),
