@@ -2,11 +2,11 @@ import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_music/api/common.dart';
 import 'package:cloud_music/dialog/music_tile_dialog.dart';
-import 'package:cloud_music/entity/play_queue.dart';
 import 'package:cloud_music/entity/playlist_detail.dart';
 import 'package:cloud_music/provider/player_store.dart';
 import 'package:cloud_music/routers/routers.dart';
 import 'package:cloud_music/utils/numbers.dart';
+import 'package:cloud_music/widget/empty_widget.dart';
 import 'package:cloud_music/widget/load_data_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_music/widget/platform_logo.dart';
@@ -16,7 +16,9 @@ class SonglistPage extends StatefulWidget {
   //参数
   final int id;
 
-  const SonglistPage({Key key, this.id}) : super(key: key);
+  final PlaylistDetail playlistDetail;
+
+  const SonglistPage({Key key, this.id, this.playlistDetail}) : super(key: key);
 
   @override
   _SonglistPageState createState() => _SonglistPageState();
@@ -25,41 +27,56 @@ class SonglistPage extends StatefulWidget {
 class _SonglistPageState extends State<SonglistPage> {
   @override
   Widget build(BuildContext context) {
-    const double HEIGHT_HEADER = 280 + kToolbarHeight;
-
     return Scaffold(
       body: Container(
-          child: LoadDataBuilder<PlaylistDetail>(
-              api: commonApi.getSonglistDetail,
-              params: {'id': widget.id},
-              builder: (context, data) {
-                return CustomScrollView(
-                  slivers: <Widget>[
-                    // CustomSliverAppBar(headInfo: data),
-                    SliverAppBar(
-                      // title: Text('歌单'),
-                      // leading: GestureDetector(
-                      //   child: Icon(
-                      //     Icons.arrow_back_ios_outlined,
-                      //   ),
-                      //   onTap: () {
-                      //     Routes.pop(context);
-                      //   },
-                      // ),
-                      elevation: 0,
-                      pinned: true,
-                      automaticallyImplyLeading: false,
-                      expandedHeight: HEIGHT_HEADER,
-                      //空间大小可变的组件
-                      flexibleSpace: SongListHeader(headInfo: data),
-                      bottom: MusicListHeader(data),
-                    ),
-                    SliverList(
-                        delegate: SliverChildListDelegate(
-                            [SongListBuild(songListInfo: data)]))
-                  ],
-                );
-              })),
+        child: _buildContent(),
+      ),
+    );
+  }
+
+  Widget _buildContent() {
+    print(widget.playlistDetail);
+    if (widget.id != null) {
+      return LoadDataBuilder<PlaylistDetail>(
+        api: commonApi.getSonglistDetail,
+        params: {'id': widget.id},
+        builder: (context, data) {
+          return _sliverScrollView(data);
+        },
+      );
+    } else {
+      return _sliverScrollView(widget.playlistDetail);
+      // return Container();
+    }
+  }
+
+  Widget _sliverScrollView(data) {
+    const double HEIGHT_HEADER = 280 + kToolbarHeight;
+    return CustomScrollView(
+      slivers: <Widget>[
+        // CustomSliverAppBar(headInfo: data),
+        SliverAppBar(
+          // title: Text('歌单'),
+          // leading: GestureDetector(
+          //   child: Icon(
+          //     Icons.arrow_back_ios_outlined,
+          //   ),
+          //   onTap: () {
+          //     Routes.pop(context);
+          //   },
+          // ),
+          elevation: 0,
+          pinned: true,
+          automaticallyImplyLeading: false,
+          expandedHeight: HEIGHT_HEADER,
+          //空间大小可变的组件
+          flexibleSpace: SongListHeader(headInfo: data),
+          bottom: MusicListHeader(data),
+        ),
+        SliverList(
+            delegate:
+                SliverChildListDelegate([SongListBuild(songListInfo: data)]))
+      ],
     );
   }
 }
@@ -168,11 +185,7 @@ class MusicListHeader extends StatelessWidget implements PreferredSizeWidget {
             PlayerStore player = PlayerStore.of(context, listen: false);
             if (headInfo.musicList.length > 0) {
               player.play(
-                  music: headInfo.musicList[0],
-                  playQueue: PlayQueue(
-                      queueId: headInfo.id,
-                      queueTitle: headInfo.name,
-                      queue: headInfo.musicList));
+                  music: headInfo.musicList[0], playlistDetail: headInfo);
             }
           },
           child: SizedBox.fromSize(
@@ -290,40 +303,40 @@ class SongListInfo extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                         SizedBox(height: 10),
-                        InkWell(
-                          onTap: () {
-                            Routes.navigateTo(context, '/test');
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.only(top: 4, bottom: 4),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: <Widget>[
-                                SizedBox(
-                                  height: 24,
-                                  width: 24,
-                                  child: ClipOval(
-                                    child: CachedNetworkImage(
-                                        imageUrl:
-                                            headInfo.creator["avatarUrl"]),
-                                  ),
-                                ),
-                                Padding(padding: EdgeInsets.only(left: 4)),
-                                Text(
-                                  headInfo.creator["nickname"],
-                                  style: Theme.of(context)
-                                      .primaryTextTheme
-                                      .bodyText2,
-                                ),
-                                Icon(
-                                  Icons.chevron_right,
-                                  color:
-                                      Theme.of(context).primaryIconTheme.color,
-                                )
-                              ],
-                            ),
-                          ),
-                        )
+                        // InkWell(
+                        //   onTap: () {
+                        //     // Routes.navigateTo(context, '/test');
+                        //   },
+                        //   child: Padding(
+                        //     padding: const EdgeInsets.only(top: 4, bottom: 4),
+                        //     child: Row(
+                        //       mainAxisSize: MainAxisSize.min,
+                        //       children: <Widget>[
+                        //         SizedBox(
+                        //           height: 24,
+                        //           width: 24,
+                        //           child: ClipOval(
+                        //             child: CachedNetworkImage(
+                        //                 imageUrl:
+                        //                     headInfo.creator["avatarUrl"]),
+                        //           ),
+                        //         ),
+                        //         Padding(padding: EdgeInsets.only(left: 4)),
+                        //         Text(
+                        //           headInfo.creator["nickname"],
+                        //           style: Theme.of(context)
+                        //               .primaryTextTheme
+                        //               .bodyText2,
+                        //         ),
+                        //         Icon(
+                        //           Icons.chevron_right,
+                        //           color:
+                        //               Theme.of(context).primaryIconTheme.color,
+                        //         )
+                        //       ],
+                        //     ),
+                        //   ),
+                        // )
                       ],
                     ),
                   ),
@@ -399,35 +412,39 @@ class SongListBuild extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Container(
-        decoration:
-            BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(5.0))),
-        child: Column(
-          children: [
-            Container(
-              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-              decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border(
-                      bottom:
-                          BorderSide(width: 0.5, color: Color(0xFFf5f5f5)))),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('单曲', style: TextStyle(fontWeight: FontWeight.bold))
-                ],
+    if (songListInfo.musicList != null && songListInfo.musicList.length > 0) {
+      return Container(
+        child: Container(
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(5.0))),
+          child: Column(
+            children: [
+              Container(
+                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border(
+                        bottom:
+                            BorderSide(width: 0.5, color: Color(0xFFf5f5f5)))),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('单曲', style: TextStyle(fontWeight: FontWeight.bold))
+                  ],
+                ),
               ),
-            ),
-            Wrap(
-              children: songListInfo.musicList.map((item) {
-                return _playItem(item, context, songListInfo);
-              }).toList(),
-            )
-          ],
+              Wrap(
+                children: songListInfo.musicList.map((item) {
+                  return _playItem(item, context, songListInfo);
+                }).toList(),
+              )
+            ],
+          ),
         ),
-      ),
-    );
+      );
+    } else {
+      return EmptyWidget();
+    }
   }
 
   Widget _playItem(item, context, PlaylistDetail songListInfo) {
@@ -453,12 +470,7 @@ class SongListBuild extends StatelessWidget {
           // }
           PlayerStore player = PlayerStore.of(context, listen: false);
           if (player.music == null || player.music.id != item.id) {
-            player.play(
-                music: item,
-                playQueue: PlayQueue(
-                    queueId: songListInfo.id,
-                    queueTitle: songListInfo.name,
-                    queue: songListInfo.musicList));
+            player.play(music: item, playlistDetail: songListInfo);
           }
         },
         child: Container(

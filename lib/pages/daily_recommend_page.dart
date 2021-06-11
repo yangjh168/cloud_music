@@ -3,7 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_music/api/common.dart';
 import 'package:cloud_music/dialog/music_tile_dialog.dart';
 import 'package:cloud_music/entity/music.dart';
-import 'package:cloud_music/entity/play_queue.dart';
+import 'package:cloud_music/entity/playlist_detail.dart';
 import 'package:cloud_music/provider/player_store.dart';
 import 'package:cloud_music/widget/load_data_builder.dart';
 import 'package:flutter/material.dart';
@@ -152,9 +152,21 @@ class MusicListHeader extends StatelessWidget implements PreferredSizeWidget {
             PlayerStore player = PlayerStore.of(context, listen: false);
             if (musicList.length > 0) {
               player.play(
-                  music: musicList[0],
-                  playQueue: PlayQueue(
-                      queueId: 0, queueTitle: '每日推荐', queue: musicList));
+                music: musicList[0],
+                playlistDetail: PlaylistDetail(
+                    0,
+                    '每日推荐',
+                    musicList,
+                    "https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=3566088443,3713209594&fm=26&gp=0.jpg",
+                    null,
+                    0,
+                    '',
+                    false,
+                    0,
+                    0,
+                    0,
+                    0),
+              );
             }
           },
           child: SizedBox.fromSize(
@@ -251,10 +263,7 @@ class SongListBuild extends StatelessWidget {
         onTap: () async {
           PlayerStore player = PlayerStore.of(context, listen: false);
           if (player.music == null || player.music.id != item.id) {
-            player.play(
-                music: item,
-                playQueue: PlayQueue(
-                    queueId: 0, queueTitle: '每日推荐', queue: musicList));
+            player.play(music: item);
           }
         },
         child: Container(

@@ -11,7 +11,8 @@ final Map<String, Function> routers = {
   // '/player': (params) => PlayingPage(),
   '/playerPage': (params) => PlayerPage(),
   '/searchPage': (params) => SearchPage(),
-  '/songlistPage': (params) => SonglistPage(id: params['id']),
+  '/songlistPage': (params) =>
+      SonglistPage(id: params['id'], playlistDetail: params['playlistDetail']),
   '/dailyRecommendPage': (params) => DailyRecommendPage(),
   '/playlistPlazaPage': (params) => PlaylistPlazzPage(),
   '/rankPage': (params) => RankPage(),

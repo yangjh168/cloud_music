@@ -8,6 +8,7 @@ import 'package:cloud_music/music_player/utils/lyric.dart';
 import 'package:cloud_music/music_player/widget/lyricPannel.dart';
 import 'package:cloud_music/provider/audio_store.dart';
 import 'package:cloud_music/provider/player_store.dart';
+import 'package:cloud_music/widget/empty_widget.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'animate/pointer.dart';
@@ -31,7 +32,12 @@ class PlayerPageState extends State<PlayerPage> with TickerProviderStateMixin {
     AudioStore audioStore = AudioStore.of(context);
     Music music = player.music;
     if (music == null) {
-      return Container();
+      return Scaffold(
+        appBar: AppBar(title: Text("播放详情")),
+        body: Center(
+          child: EmptyWidget(desc: "暂无播放音乐"),
+        ),
+      );
     }
     bool isPlaying = audioStore.isPlaying;
     if (panel != null) {

@@ -1,5 +1,6 @@
 import 'package:cloud_music/entity/model.dart';
 import 'package:cloud_music/entity/music.dart';
+import 'package:cloud_music/entity/play_queue.dart';
 // import 'package:cloud_music/repository/netease.dart';
 
 Music mapJsonToMusic(Map song,
@@ -37,18 +38,19 @@ List<Music> mapJsonListToMusicList(List tracks,
 
 class PlaylistDetail {
   PlaylistDetail(
-      this.id,
-      this.musicList,
-      this.creator,
-      this.name,
-      this.coverUrl,
-      this.trackCount,
-      this.description,
-      this.subscribed,
-      this.subscribedCount,
-      this.commentCount,
-      this.shareCount,
-      this.playCount);
+    this.id,
+    this.name,
+    this.musicList,
+    this.coverUrl,
+    this.creator,
+    this.trackCount,
+    this.description,
+    this.subscribed,
+    this.subscribedCount,
+    this.commentCount,
+    this.shareCount,
+    this.playCount,
+  );
 
   ///null when playlist not complete loaded
   final List<Music> musicList;
@@ -88,11 +90,11 @@ class PlaylistDetail {
   static PlaylistDetail fromJson(Map playlist) {
     return PlaylistDetail(
         playlist["id"],
+        playlist["name"],
         mapJsonListToMusicList(playlist["tracks"],
             artistKey: "ar", albumKey: "al"),
-        playlist["creator"],
-        playlist["name"],
         playlist["coverImgUrl"],
+        playlist["creator"],
         playlist["trackCount"],
         playlist["description"],
         playlist["subscribed"],
@@ -108,13 +110,13 @@ class PlaylistDetail {
     }
     return PlaylistDetail(
         map['id'],
+        map['name'],
         (map['musicList'] as List)
             ?.cast<Map>()
             ?.map((m) => Music.fromMap(m))
             ?.toList(),
-        map['creator'],
-        map['name'],
         map['coverUrl'],
+        map['creator'],
         map['trackCount'],
         map['description'],
         map['subscribed'],
@@ -127,10 +129,10 @@ class PlaylistDetail {
   Map toMap() {
     return {
       'id': id,
-      'musicList': musicList?.map((m) => m.toMap())?.toList(),
-      'creator': creator,
       'name': name,
+      'musicList': musicList?.map((m) => m.toMap())?.toList(),
       'coverUrl': coverUrl,
+      'creator': creator,
       'trackCount': trackCount,
       'description': description,
       'subscribed': subscribed,
@@ -139,5 +141,13 @@ class PlaylistDetail {
       'shareCount': shareCount,
       'playCount': playCount
     };
+  }
+
+  PlayQueue toPlayQueue() {
+    return PlayQueue(
+      queueId: this.id,
+      queueTitle: this.name,
+      queue: this.musicList,
+    );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/animation.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 // class AnimatePointer extends AnimatedWidget {
 //   AnimatePointer({Key key, Animation animation})
@@ -92,8 +93,8 @@ class PointerState extends State<Pointer> with SingleTickerProviderStateMixin {
     return PointerAnimate(
         animation: animation,
         child: Container(
-          height: 128.0,
-          width: 172.0,
+          height: 188.0.h,
+          width: 232.0.h,
           decoration: BoxDecoration(
             image: DecorationImage(
               alignment: Alignment(0.5, -1.0),

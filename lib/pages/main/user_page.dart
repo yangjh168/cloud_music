@@ -19,8 +19,6 @@ class UserPage extends StatefulWidget {
 
 class _UserPageState extends State<UserPage>
     with AutomaticKeepAliveClientMixin, SingleTickerProviderStateMixin {
-  // final Logger logger = Logger("_MainPlaylistState");
-
   ScrollController _scrollController = ScrollController();
 
   TabController _tabController;
@@ -74,8 +72,7 @@ class _UserPageState extends State<UserPage>
               [
                 UserProfileSection(),
                 PresetGridSection(),
-                ProfileLike(),
-                SizedBox(height: 8),
+                // ProfileLike(),
               ],
             ),
           ),

@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/animation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class DiscAnimate extends StatelessWidget {
   final Widget child;
@@ -73,8 +74,8 @@ class DiscState extends State<Disc> with SingleTickerProviderStateMixin {
       child: DiscAnimate(
         animation: animation,
         child: Container(
-          height: 280.0,
-          width: 280.0,
+          height: 420.0.h,
+          width: 420.0.h,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             image: DecorationImage(
@@ -84,8 +85,8 @@ class DiscState extends State<Disc> with SingleTickerProviderStateMixin {
           ),
           child: Center(
             child: Container(
-              height: 180.0,
-              width: 180.0,
+              height: 270.0.h,
+              width: 270.0.h,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 image: DecorationImage(

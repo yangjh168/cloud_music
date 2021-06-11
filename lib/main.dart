@@ -3,6 +3,7 @@ import 'package:cloud_music/pages/splash/page_splash.dart';
 import 'package:cloud_music/pages/splash_page.dart';
 import 'package:cloud_music/provider/audio_store.dart';
 import 'package:cloud_music/provider/player_store.dart';
+import 'package:cloud_music/provider/queue_store.dart';
 import 'package:cloud_music/provider/search_store.dart';
 import 'package:cloud_music/provider/settings.dart';
 import 'package:cloud_music/provider/user_account.dart';
@@ -67,14 +68,14 @@ class GlobalProvider extends StatelessWidget {
       ChangeNotifierProvider(create: (context) {
         return UserAccount(user);
       }),
-      // ChangeNotifierProvider(create: (context) {
-      //   return MusicStore();
-      // }),
       ChangeNotifierProvider(create: (context) {
         return AudioStore();
       }),
       ChangeNotifierProvider(create: (context) {
         return PlayerStore(playerBox);
+      }),
+      ChangeNotifierProvider(create: (context) {
+        return QueueStore();
       }),
       ChangeNotifierProvider(create: (context) {
         return SearchStore();

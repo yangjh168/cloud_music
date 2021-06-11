@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_music/entity/user_detail_bean.dart';
 import 'package:cloud_music/provider/user_account.dart';
 import 'package:flutter/cupertino.dart';
@@ -40,7 +41,8 @@ class UserProfileSection extends StatelessWidget {
             children: [
               SizedBox(width: 8),
               CircleAvatar(
-                // backgroundImage: CachedImage(detail.profile.avatarUrl),
+                backgroundImage:
+                    CachedNetworkImageProvider(detail.profile.avatarUrl),
                 radius: 20,
               ),
               SizedBox(width: 12),

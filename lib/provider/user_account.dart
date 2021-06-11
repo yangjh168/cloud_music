@@ -21,7 +21,26 @@ class UserAccount extends ChangeNotifier {
   ///get user info from persistence data
   static Future<Map> getPersistenceUser() async {
     // return await neteaseLocalData[_persistenceKey];
-    return {};
+    var profileMap = {
+      'avatarUrl':
+          'https://pic4.zhimg.com/80/v2-0e98d843ef66ae5e9ec846a7c5f98224_720w.jpg?source=1940ef5c',
+      'nickname': '卡布奇诺专属',
+    };
+    UserProfile profile = UserProfile.fromJsonMap(profileMap);
+    return {
+      'level': 10,
+      'listenSongs': null,
+      'userPoint': null,
+      'mobileSign': null,
+      'pcSign': null,
+      'profile': profile,
+      'peopleCanSeeMyPlayRecord': null,
+      'bindings': null,
+      'adValid': null,
+      'code': null,
+      'createTime': null,
+      'createDays': null,
+    };
   }
 
   ///根据BuildContext获取 [UserAccount]

@@ -2,8 +2,10 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:cloud_music/api/common.dart';
 import 'package:cloud_music/entity/music.dart';
 import 'package:cloud_music/entity/play_queue.dart';
+import 'package:cloud_music/entity/playlist_detail.dart';
 import 'package:cloud_music/music_player/play_mode.dart';
 import 'package:cloud_music/provider/audio_store.dart';
+import 'package:cloud_music/provider/queue_store.dart';
 // import 'package:cloud_music/music_player/player_controller.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -44,31 +46,27 @@ class PlayerStore extends ChangeNotifier {
   // 当前播放队列
   PlayQueue playQueue;
 
-  //全部队列
-  List<PlayQueue> queueList;
-
   // 播放模式
   PlayMode playMode;
 
+  //hive操作对象
   Box playerBox;
 
   void initAudioPlayer() {
     //初始默认播放模式
-    // this.playMode = PlayMode.sequence;
     this.playMode = this.playerBox.getPlayMode();
     this.playQueue = this.playerBox.getPlayQueue();
     this.music = this.playerBox.getCurrentMusic();
-    print("初始化playMode:" + this.playMode.toString());
-    print("初始化playQueue:" + this.playQueue.toString());
-    print("初始化music:" + this.music.toString());
+    QueueStore.instance.queueList = this.playerBox.getSongList();
+    // print("初始化playMode:" + this.playMode.toString());
+    // print("初始化playQueue:" + this.playQueue.toString());
+    // print("初始化music:" + this.music.toString());
     //初始化完audioPlayer，触发更新
     notifyListeners();
   }
 
-  // PlayerController transportControls = PlayerController(this);
-
   //准备播放
-  play({Music music, PlayQueue playQueue}) async {
+  play({Music music, PlaylistDetail playlistDetail}) async {
     var _muisc = music;
     print("播放音乐：" +
         _muisc.title +
@@ -92,12 +90,12 @@ class PlayerStore extends ChangeNotifier {
       Music newMusic = Music.fromMap(res);
       _muisc = newMusic;
     }
-    if (playQueue != null) {
-      this.playQueue = playQueue;
+    if (playlistDetail != null) {
+      QueueStore.instance.addPlaylistDetail(playlistDetail);
+      this.playQueue = playlistDetail.toPlayQueue();
     } else {
-      if (this.playQueue.queue.indexOf(_muisc) == -1) {
-        this.playQueue.queue.add(_muisc);
-      }
+      QueueStore.instance.defaultQueueAddMusic(_muisc);
+      this.playQueue = QueueStore.instance.defaultQueue;
     }
     this.playerBox.savePlayQueue(this.playQueue);
     if (_muisc != null) {
