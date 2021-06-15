@@ -85,7 +85,7 @@ class PlaylistDetail {
   /// properties:
   /// avatarUrl , nickname
   ///
-  final Map<String, dynamic> creator;
+  final Map creator;
 
   static PlaylistDetail fromJson(Map playlist) {
     return PlaylistDetail(
@@ -109,21 +109,22 @@ class PlaylistDetail {
       return null;
     }
     return PlaylistDetail(
-        map['id'],
-        map['name'],
-        (map['musicList'] as List)
-            ?.cast<Map>()
-            ?.map((m) => Music.fromMap(m))
-            ?.toList(),
-        map['coverUrl'],
-        map['creator'],
-        map['trackCount'],
-        map['description'],
-        map['subscribed'],
-        map['subscribedCount'],
-        map['commentCount'],
-        map['shareCount'],
-        map['playCount']);
+      map['id'],
+      map['name'],
+      (map['musicList'] as List)
+          ?.cast<Map>()
+          ?.map((m) => Music.fromMap(m))
+          ?.toList(),
+      map['coverUrl'],
+      map['creator'],
+      map['trackCount'],
+      map['description'],
+      map['subscribed'],
+      map['subscribedCount'],
+      map['commentCount'],
+      map['shareCount'],
+      map['playCount'],
+    );
   }
 
   Map toMap() {

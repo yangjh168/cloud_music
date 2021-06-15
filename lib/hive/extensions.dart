@@ -48,18 +48,10 @@ extension PlayerActionExtensions on Box {
             0),
       ];
     } else {
-      print("queueList==========");
-      print(queueList);
-      List<PlaylistDetail> list =
-          (queueList as List)?.cast<Map>()?.map<PlaylistDetail>((item) {
-        print("111111111111111111111111");
-        print(item);
-        PlaylistDetail playlistDetail = PlaylistDetail.fromMap(item);
-        print("222222222222222");
-        print(playlistDetail);
-        return playlistDetail;
-      })?.toList();
-      print("3333333333333333333");
+      List<PlaylistDetail> list = (queueList as List)
+          ?.cast<Map>()
+          ?.map<PlaylistDetail>((item) => PlaylistDetail.fromMap(item))
+          ?.toList();
       return list;
     }
   }

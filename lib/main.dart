@@ -39,7 +39,8 @@ void main() {
       }),
     ],
     builder: (context, data) {
-      print(data);
+      print("数据初始化");
+      print(data[1]);
       return GlobalProvider(
         setting: Settings(data[0]),
         user: data[1],

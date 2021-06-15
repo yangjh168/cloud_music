@@ -66,7 +66,8 @@ class PlayerStore extends ChangeNotifier {
   }
 
   //准备播放
-  play({Music music, PlaylistDetail playlistDetail}) async {
+  play(
+      {Music music, PlaylistDetail playlistDetail, PlayQueue playQueue}) async {
     var _muisc = music;
     print("播放音乐：" +
         _muisc.title +
@@ -93,6 +94,8 @@ class PlayerStore extends ChangeNotifier {
     if (playlistDetail != null) {
       QueueStore.instance.addPlaylistDetail(playlistDetail);
       this.playQueue = playlistDetail.toPlayQueue();
+    } else if (playQueue != null) {
+      this.playQueue = playQueue;
     } else {
       QueueStore.instance.defaultQueueAddMusic(_muisc);
       this.playQueue = QueueStore.instance.defaultQueue;
@@ -148,7 +151,7 @@ class PlayerStore extends ChangeNotifier {
     if (i < 0) {
       i = this.playQueue.queue.length - 1;
     }
-    play(music: this.playQueue.queue[i]);
+    play(music: this.playQueue.queue[i], playQueue: this.playQueue);
   }
 
   //处理下一首按钮事件
@@ -165,7 +168,7 @@ class PlayerStore extends ChangeNotifier {
     if (i >= this.playQueue.queue.length) {
       i = 0;
     }
-    play(music: this.playQueue.queue[i]);
+    play(music: this.playQueue.queue[i], playQueue: this.playQueue);
   }
 
   //设置播放模式
@@ -202,7 +205,7 @@ class PlayerStore extends ChangeNotifier {
       this.playerBox.savePlayQueue(this.playQueue);
       notifyListeners();
     } else {
-      this.play(music: music);
+      this.play(music: music, playQueue: this.playQueue);
     }
   }
 }

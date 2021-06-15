@@ -8,32 +8,42 @@ import 'package:cloud_music/entity/user_detail_bean.dart';
 
 ///登录状态
 class UserAccount extends ChangeNotifier {
-  //用户信息透明度
-  double userOpacity = 1;
+  UserDetail _userDetail;
 
-  setUserOpacity(double opacity) {
-    userOpacity = opacity;
-    notifyListeners();
+  UserDetail get userDetail => _userDetail;
+
+  UserProfile get profile => userDetail.profile;
+
+  ///当前是否已登录
+  bool get isLogin => _userDetail != null;
+
+  ///当前登录用户的id
+  ///null if not login
+  int get userId {
+    if (!isLogin) {
+      return null;
+    }
+    return _userDetail.profile.userId;
   }
 
+  static const _persistenceKey = 'neteaseLoginUser';
   // final logger = Logger("UserAccount");
 
   ///get user info from persistence data
   static Future<Map> getPersistenceUser() async {
     // return await neteaseLocalData[_persistenceKey];
-    var profileMap = {
-      'avatarUrl':
-          'https://pic4.zhimg.com/80/v2-0e98d843ef66ae5e9ec846a7c5f98224_720w.jpg?source=1940ef5c',
-      'nickname': '卡布奇诺专属',
-    };
-    UserProfile profile = UserProfile.fromJsonMap(profileMap);
     return {
       'level': 10,
       'listenSongs': null,
       'userPoint': null,
       'mobileSign': null,
       'pcSign': null,
-      'profile': profile,
+      'profile': {
+        'userId': 1,
+        'avatarUrl':
+            'https://pic4.zhimg.com/80/v2-0e98d843ef66ae5e9ec846a7c5f98224_720w.jpg?source=1940ef5c',
+        'nickname': '卡布奇诺专属',
+      },
       'peopleCanSeeMyPlayRecord': null,
       'bindings': null,
       'adValid': null,
@@ -48,8 +58,33 @@ class UserAccount extends ChangeNotifier {
     return Provider.of<UserAccount>(context, listen: listen);
   }
 
-  static const _persistenceKey = 'neteaseLoginUser';
+  UserAccount(Map user) {
+    print("当前登录用户");
+    print(user);
+    if (user != null) {
+      _userDetail = UserDetail.fromJsonMap(user);
+      print(_userDetail);
+      notifyListeners();
 
+      //访问api，刷新登陆状态
+      // neteaseRepository.refreshLogin().then((login) async {
+      //   if (!login || _userDetail == null) {
+      //     logout();
+      //   } else {
+      //     // refresh user
+      //     final result =
+      //         await neteaseRepository.getUserDetail(_userDetail.profile.userId);
+      //     if (result.isValue) {
+      //       _userDetail = result.asValue.value;
+      //       neteaseLocalData[_persistenceKey] = _userDetail.toJson();
+      //       notifyListeners();
+      //     }
+      //   }
+      // }, onError: (e) {
+      //   debugPrint("refresh login status failed \n $e");
+      // });
+    }
+  }
   // Future<Result<Map>> login(String phone, String password) async {
   //   final result = await neteaseRepository.login(phone, password);
   //   if (result.isValue) {
@@ -74,51 +109,11 @@ class UserAccount extends ChangeNotifier {
     // neteaseRepository.logout();
   }
 
-  UserAccount(Map user) {
-    if (user != null) {
-      try {
-        _userDetail = UserDetail.fromJsonMap(user);
-      } catch (e) {
-        // logger.severe("can not read user: $e");
-        // neteaseLocalData["neteaseLocalData"] = null;
-      }
-      //访问api，刷新登陆状态
-      // neteaseRepository.refreshLogin().then((login) async {
-      //   if (!login || _userDetail == null) {
-      //     logout();
-      //   } else {
-      //     // refresh user
-      //     final result =
-      //         await neteaseRepository.getUserDetail(_userDetail.profile.userId);
-      //     if (result.isValue) {
-      //       _userDetail = result.asValue.value;
-      //       neteaseLocalData[_persistenceKey] = _userDetail.toJson();
-      //       notifyListeners();
-      //     }
-      //   }
-      // }, onError: (e) {
-      //   debugPrint("refresh login status failed \n $e");
-      // });
-    }
-  }
+  //用户信息透明度
+  double userOpacity = 1;
 
-  UserDetail _userDetail;
-
-  UserDetail get userDetail => _userDetail;
-
-  UserProfile get profile => userDetail.profile;
-
-  ///当前是否已登录
-  bool get isLogin {
-    return _userDetail != null;
-  }
-
-  ///当前登录用户的id
-  ///null if not login
-  int get userId {
-    if (!isLogin) {
-      return null;
-    }
-    return _userDetail.profile.userId;
+  setUserOpacity(double opacity) {
+    userOpacity = opacity;
+    notifyListeners();
   }
 }

@@ -48,15 +48,19 @@ class QueueStore extends ChangeNotifier {
 
   //添加队列到歌单列表
   addPlaylistDetail(PlaylistDetail playlistDetail) {
-    this.queueList.add(playlistDetail);
-    PlayerStore.instance.playerBox.saveSongList(this.queueList);
-    notifyListeners();
+    if (!this.queueList.contains(playlistDetail)) {
+      this.queueList.add(playlistDetail);
+      PlayerStore.instance.playerBox.saveSongList(this.queueList);
+      notifyListeners();
+    }
   }
 
   //歌单列表删除某队列
   removePlayQueue(PlaylistDetail playlistDetail) {
-    this.queueList.remove(playlistDetail);
-    PlayerStore.instance.playerBox.saveSongList(this.queueList);
-    notifyListeners();
+    if (this.queueList.contains(playlistDetail)) {
+      this.queueList.remove(playlistDetail);
+      PlayerStore.instance.playerBox.saveSongList(this.queueList);
+      notifyListeners();
+    }
   }
 }

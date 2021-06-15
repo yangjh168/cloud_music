@@ -88,14 +88,13 @@ class DailyRecommendHeader extends StatelessWidget {
             child: Stack(
               fit: StackFit.passthrough,
               children: <Widget>[
-                CachedNetworkImage(
-                    imageUrl: backgroundUrl,
-                    fit: BoxFit.cover,
-                    width: 120,
-                    height: 1),
-                BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
-                  child: Container(color: Colors.black.withOpacity(0.3)),
+                Opacity(
+                  opacity: 1 - opacity,
+                  child: CachedNetworkImage(
+                      imageUrl: backgroundUrl,
+                      fit: BoxFit.cover,
+                      width: 120,
+                      height: 1),
                 ),
                 Container(color: Colors.black.withOpacity(0.3))
               ],
@@ -210,10 +209,7 @@ class ExpandBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: CachedNetworkImage(
-          imageUrl: background, fit: BoxFit.cover, width: 120, height: 1),
-    );
+    return Container();
   }
 }
 

@@ -45,12 +45,14 @@ class LyricState extends State<LyricPanel> {
             children: <Widget>[
               Text(
                 currentModel != null ? currentModel.lrc : "",
+                softWrap: true,
                 style: new TextStyle(
                   color: Colors.white,
                 ),
               ),
               Text(
                 currentModel != null ? currentModel.tlyric : "",
+                softWrap: true,
                 style: new TextStyle(
                   color: Colors.white,
                 ),

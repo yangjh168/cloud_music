@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:cloud_music/component/component.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 enum PlayListType { created, favorite }
 
@@ -179,8 +180,8 @@ class _UserPlayListSectionState extends State<UserPlayListSection> {
     //   },
     // );
     List result = QueueStore.of(context).queueList;
-    final created = result.where((item) => true);
-    final subscribed = [].where((item) => true);
+    final created = result.where((item) => item.id == 0);
+    final subscribed = result.where((item) => item.id != 0);
     return SliverList(
       key: PlayListSliverKey(
           createdPosition: 1, favoritePosition: 3 + created.length),
@@ -193,7 +194,7 @@ class _UserPlayListSectionState extends State<UserPlayListSection> {
         PlayListsGroupHeader(
             name: context.strings["favorite_song_list"],
             count: subscribed.length),
-        // ..._playlistWidget(subscribed),
+        ..._playlistWidget(subscribed),
         SizedBox(height: _kPlayListDividerHeight),
       ], addAutomaticKeepAlives: false),
     );
@@ -319,8 +320,8 @@ class PlayListsGroupHeader extends StatelessWidget {
             children: [
               Text("$name($count)"),
               Spacer(),
-              Icon(Icons.add),
-              Icon(Icons.more_vert),
+              // Icon(Icons.add), //歌单添加
+              // Icon(Icons.more_vert), //歌单批量操作
             ],
           ),
         ),
@@ -429,25 +430,32 @@ class PlaylistTile extends StatelessWidget {
             if (enableMore)
               PopupMenuButton<PlaylistOp>(
                 itemBuilder: (context) {
-                  return [
-                    PopupMenuItem(child: Text("分享"), value: PlaylistOp.share),
-                    PopupMenuItem(
-                        child: Text("编辑歌单信息"), value: PlaylistOp.edit),
-                    PopupMenuItem(child: Text("删除"), value: PlaylistOp.delete),
-                  ];
+                  if (playlist.id == 0) {
+                    return [
+                      PopupMenuItem(child: Text("分享"), value: PlaylistOp.share),
+                      PopupMenuItem(
+                          child: Text("编辑歌单信息"), value: PlaylistOp.edit),
+                    ];
+                  } else {
+                    return [
+                      PopupMenuItem(child: Text("分享"), value: PlaylistOp.share),
+                      PopupMenuItem(
+                          child: Text("删除"), value: PlaylistOp.delete),
+                    ];
+                  }
                 },
                 onSelected: (op) {
-                  // switch (op) {
-                  //   case PlaylistOp.delete:
-                  //   case PlaylistOp.share:
-                  //     toast("未接入。");
-                  //     break;
-                  //   case PlaylistOp.edit:
-                  //     context.secondaryNavigator.push(MaterialPageRoute(builder: (context) {
-                  //       return PlaylistEditPage(playlist);
-                  //     }));
-                  //     break;
-                  // }
+                  switch (op) {
+                    case PlaylistOp.edit:
+                    case PlaylistOp.share:
+                      Fluttertoast.showToast(
+                        msg: "未接入",
+                      );
+                      break;
+                    case PlaylistOp.delete:
+                      QueueStore.instance.removePlayQueue(playlist);
+                      break;
+                  }
                 },
                 icon: Icon(Icons.more_vert),
               ),

@@ -12,15 +12,22 @@ class UserDetail {
   final int createTime;
   final int createDays;
 
-  UserDetail.fromJsonMap(Map<String, dynamic> map)
+  UserDetail.fromJsonMap(Map map)
       : level = map["level"],
         listenSongs = map["listenSongs"],
-        userPoint = UserPoint.fromJsonMap(map["userPoint"]),
+        userPoint = (map["userPoint"] != null
+            ? UserPoint.fromJsonMap(map["userPoint"])
+            : null),
         mobileSign = map["mobileSign"],
         pcSign = map["pcSign"],
-        profile = UserProfile.fromJsonMap(map["profile"]),
+        profile = (map["profile"] != null
+            ? UserProfile.fromJsonMap(map["profile"])
+            : null),
         peopleCanSeeMyPlayRecord = map["peopleCanSeeMyPlayRecord"],
-        bindings = List<Bindings>.from(map["bindings"].map((it) => Bindings.fromJsonMap(it))),
+        bindings = (map["bindings"] != null
+            ? List<Bindings>.from(
+                map["bindings"].map((it) => Bindings.fromJsonMap(it)))
+            : null),
         adValid = map["adValid"],
         code = map["code"],
         createTime = map["createTime"],
@@ -35,7 +42,8 @@ class UserDetail {
     data['pcSign'] = pcSign;
     data['profile'] = profile == null ? null : profile.toJson();
     data['peopleCanSeeMyPlayRecord'] = peopleCanSeeMyPlayRecord;
-    data['bindings'] = bindings != null ? this.bindings.map((v) => v.toJson()).toList() : null;
+    data['bindings'] =
+        bindings != null ? this.bindings.map((v) => v.toJson()).toList() : null;
     data['adValid'] = adValid;
     data['code'] = code;
     data['createTime'] = createTime;
@@ -52,7 +60,7 @@ class UserPoint {
   final int status;
   final int blockBalance;
 
-  UserPoint.fromJsonMap(Map<String, dynamic> map)
+  UserPoint.fromJsonMap(Map map)
       : userId = map["userId"],
         balance = map["balance"],
         updateTime = map["updateTime"],
@@ -112,7 +120,7 @@ class UserProfile {
   final int playlistBeSubscribedCount;
   final int sCount;
 
-  UserProfile.fromJsonMap(Map<String, dynamic> map)
+  UserProfile.fromJsonMap(Map map)
       : detailDescription = map["detailDescription"],
         followed = map["followed"],
         avatarImgIdStr = map["avatarImgIdStr"],
@@ -207,7 +215,7 @@ class Bindings {
   final int id;
   final int type;
 
-  Bindings.fromJsonMap(Map<String, dynamic> map)
+  Bindings.fromJsonMap(Map map)
       : refreshTime = map["refreshTime"],
         expiresIn = map["expiresIn"],
         userId = map["userId"],
