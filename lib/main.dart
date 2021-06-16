@@ -39,8 +39,6 @@ void main() {
       }),
     ],
     builder: (context, data) {
-      print("数据初始化");
-      print(data[1]);
       return GlobalProvider(
         setting: Settings(data[0]),
         user: data[1],
@@ -62,35 +60,40 @@ class GlobalProvider extends StatelessWidget {
       : super(key: key);
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(providers: [
-      ChangeNotifierProvider(create: (context) {
-        return IndexStore();
-      }),
-      ChangeNotifierProvider(create: (context) {
-        return UserAccount(user);
-      }),
-      ChangeNotifierProvider(create: (context) {
-        return AudioStore();
-      }),
-      ChangeNotifierProvider(create: (context) {
-        return PlayerStore(playerBox);
-      }),
-      ChangeNotifierProvider(create: (context) {
-        return QueueStore();
-      }),
-      ChangeNotifierProvider(create: (context) {
-        return SearchStore();
-      }),
-    ], child: MyApp(setting: setting));
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) {
+          return setting;
+        }),
+        ChangeNotifierProvider(create: (context) {
+          return IndexStore();
+        }),
+        ChangeNotifierProvider(create: (context) {
+          return UserAccount(user);
+        }),
+        ChangeNotifierProvider(create: (context) {
+          return AudioStore();
+        }),
+        ChangeNotifierProvider(create: (context) {
+          return PlayerStore(playerBox);
+        }),
+        ChangeNotifierProvider(create: (context) {
+          return QueueStore();
+        }),
+        ChangeNotifierProvider(create: (context) {
+          return SearchStore();
+        }),
+      ],
+      child: MyApp(),
+    );
   }
 }
 
 class MyApp extends StatelessWidget {
-  final Settings setting;
-
-  const MyApp({Key key, @required this.setting}) : super(key: key);
+  const MyApp({Key key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
+    Settings setting = Settings.of(context);
     //创建路由对象
     final router = FluroRouter();
     //配置路由集Routes的路由对象
@@ -118,17 +121,8 @@ class MyApp extends StatelessWidget {
         //生成路由的回调函数，当导航的命名路由的时候，会使用这个来生成界面
         onGenerateRoute: router.generator,
         theme: setting.theme,
-        // theme: ThemeData(
-        //   // brightness: Brightness.dark, //黑色主题
-        //   primaryColor: Color(0xFFf1503B),
-        //   fontFamily: 'Montserrat',
-        //   scaffoldBackgroundColor: Color(0xFFf5f5f5), //Scaffold底色
-        //   // 文本主题
-        //   textTheme: TextTheme(
-        //     bodyText2: TextStyle(
-        //         fontSize: 24.0.sp, color: Colors.black), //Material 的默认文本样式。
-        //   ),
-        // ),
+        darkTheme: setting.darkTheme,
+        themeMode: setting.themeMode,
         supportedLocales: [const Locale("en"), const Locale("zh")],
         localizationsDelegates: [
           GlobalWidgetsLocalizations.delegate,

@@ -39,7 +39,9 @@ class NewMusicListState extends State<NewMusicList> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('最新歌曲', style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text('最新歌曲',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 26.sp)),
                   // Row(
                   //   children: [
                   //     Text('更多', style: TextStyle(color: Colors.black38)),

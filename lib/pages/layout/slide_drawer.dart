@@ -1,7 +1,9 @@
 import 'dart:ui';
 import 'package:cloud_music/repository/global_repository.dart';
+import 'package:cloud_music/routers/routers.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_music/widget/slide_container.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class SlideDrawer extends StatefulWidget {
   final Widget child;
@@ -115,32 +117,60 @@ class CustomAppBar extends StatelessWidget {
 class _MenuInfo {
   final String title;
   final IconData icon;
+  final Function onTap;
 
-  _MenuInfo({this.title, this.icon});
+  _MenuInfo({this.title, this.icon, this.onTap});
 }
 
-final List<_MenuInfo> menus = [
-  _MenuInfo(title: '设置', icon: Icons.settings),
-  _MenuInfo(title: '夜间模式', icon: Icons.account_balance_wallet),
-  _MenuInfo(title: '个性装扮', icon: Icons.format_paint),
-  _MenuInfo(title: '关于', icon: Icons.photo_album),
-];
-
 class DrawerPage extends StatelessWidget {
+  final List<_MenuInfo> menus = [
+    _MenuInfo(
+      title: '主题设置',
+      icon: Icons.settings,
+      onTap: (context) {
+        print("点击主题设置");
+        Routes.navigateTo(context, '/settingThemePage');
+      },
+    ),
+    // _MenuInfo(title: '夜间模式', icon: Icons.account_balance_wallet),
+    // _MenuInfo(title: '个性装扮', icon: Icons.format_paint),
+    _MenuInfo(
+        title: '关于',
+        icon: Icons.quiz_outlined,
+        onTap: (context) {
+          showDialog(
+            context: context,
+            builder: (context) {
+              return AboutDialog(
+                applicationIcon: Container(
+                  width: 150.w,
+                  height: 150.w,
+                  child: Image.asset("images/bg_daily.png"),
+                ),
+                applicationVersion: "0.0.1-alpha",
+                applicationLegalese: "此应用仅供学习交流使用，请勿用于任何商业用途。",
+              );
+            },
+          );
+        }),
+  ];
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: new BackdropFilter(
-        filter: new ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
-        child: new Container(
-          padding: EdgeInsets.only(top: 20.0, left: 20.0),
-          child: Column(
-            children: <Widget>[
-              Expanded(
-                child: ListView.builder(
-                    itemCount: menus.length,
-                    itemBuilder: (context, index) {
-                      return Container(
+      // child: new BackdropFilter(
+      //   filter: new ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+      child: new Container(
+        padding: EdgeInsets.only(top: 20.0),
+        child: Column(
+          children: <Widget>[
+            Expanded(
+              child: ListView.builder(
+                  itemCount: menus.length,
+                  itemBuilder: (context, index) {
+                    return InkWell(
+                      onTap: () => menus[index].onTap(context),
+                      child: Container(
+                        padding: EdgeInsets.only(left: 20.0),
                         height: 60.0,
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -159,14 +189,15 @@ class DrawerPage extends StatelessWidget {
                             ),
                           ],
                         ),
-                      );
-                    }),
-              )
-            ],
-          ),
-          decoration: new BoxDecoration(color: Colors.white.withOpacity(0.25)),
+                      ),
+                    );
+                  }),
+            )
+          ],
         ),
+        decoration: new BoxDecoration(color: Colors.white.withOpacity(0.25)),
       ),
+      // ),
     );
   }
 }

@@ -9,9 +9,9 @@ const _key_theme_mode = "$_prefix:themeMode";
 const _key_copyright = "$_prefix:copyright";
 const _key_skip_welcome_page = '$_prefix:skipWelcomePage';
 
-// extension SettingsProvider on BuildContext {
-//   Settings get settings => ScopedModel.of(this, listen: true);
-// }
+extension SettingsProvider on BuildContext {
+  Settings get settings => Settings.of(this, listen: false);
+}
 
 ///登录状态
 class Settings extends ChangeNotifier {

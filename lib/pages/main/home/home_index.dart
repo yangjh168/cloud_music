@@ -7,12 +7,12 @@ import 'package:cloud_music/pages/main/home/recommend_playlist.dart';
 import 'package:flutter_easyrefresh/easy_refresh.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class NeteaseHome extends StatefulWidget {
+class HomeIndex extends StatefulWidget {
   @override
-  _NeteaseHomeState createState() => _NeteaseHomeState();
+  _HomeIndexState createState() => _HomeIndexState();
 }
 
-class _NeteaseHomeState extends State<NeteaseHome>
+class _HomeIndexState extends State<HomeIndex>
     with AutomaticKeepAliveClientMixin {
   int platform = 1;
 
@@ -48,7 +48,15 @@ class _NeteaseHomeState extends State<NeteaseHome>
     List<Map> bannerList = [
       {
         "url":
-            "https://ns-strategy.cdn.bcebos.com/ns-strategy/upload/fc_big_pic/part-00799-2326.jpg"
+            "https://i2.hdslb.com/bfs/archive/859129019595d166286962c6b1aabd034ad58b4f.jpg@880w_388h_1c_95q.webp"
+      },
+      {
+        "url":
+            "http://i0.hdslb.com/bfs/feed-admin/bd20e2214e1459381832eabf706dfe8d6adfe249.jpg@880w_388h_1c_95q"
+      },
+      {
+        "url":
+            "https://i1.hdslb.com/bfs/archive/0a9a38dff7a4f1f1e3b9cb0ca06af7171a060f14.jpg@880w_388h_1c_95q.webp"
       }
     ];
     IndexStore indexStore = IndexStore.of(context);
@@ -66,7 +74,7 @@ class _NeteaseHomeState extends State<NeteaseHome>
         clipBehavior: Clip.none,
         children: [
           Container(
-            color: Color(0xFFf1503B),
+            color: Theme.of(context).primaryColor,
             height: 150.0.h,
           ),
           Container(

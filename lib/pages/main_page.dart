@@ -40,9 +40,6 @@ class _MainPageState extends State<MainPage> {
 class CustomBottomNavigationBar extends StatelessWidget {
   final PageController pageController;
 
-  final activeTabbarColor = Colors.blue;
-  final unActiveTababarColor = Color(0xff646566);
-
   CustomBottomNavigationBar({Key key, this.pageController}) : super(key: key);
 
   @override
@@ -64,21 +61,22 @@ class CustomBottomNavigationBar extends StatelessWidget {
         children: <Widget>[
           Expanded(
               flex: 1,
-              child: bottomTabBarItem(
-                  0, '首页', Icons.music_video_outlined, viewIndex, changeFuc)),
+              child: bottomTabBarItem(context, 0, '首页',
+                  Icons.music_video_outlined, viewIndex, changeFuc)),
           SizedBox(child: bottomTabBarPlayer()),
           Expanded(
               flex: 1,
-              child: bottomTabBarItem(
-                  1, '我的', Icons.account_circle, viewIndex, changeFuc)),
+              child: bottomTabBarItem(context, 1, '我的', Icons.account_circle,
+                  viewIndex, changeFuc)),
         ],
       ),
     );
   }
 
-  Widget bottomTabBarItem(int index, String label, IconData icon, int viewIndex,
-      Function changeFuc) {
-    Color color = viewIndex == index ? activeTabbarColor : unActiveTababarColor;
+  Widget bottomTabBarItem(context, int index, String label, IconData icon,
+      int viewIndex, Function changeFuc) {
+    Color color =
+        viewIndex == index ? Theme.of(context).primaryColor : Color(0xff646566);
     //构造返回的Widget
     Widget item = InkResponse(
       child: Padding(

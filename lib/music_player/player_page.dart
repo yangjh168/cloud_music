@@ -15,21 +15,14 @@ import 'animate/pointer.dart';
 import 'animate/disc.dart';
 
 class PlayerPage extends StatefulWidget {
-  final Color color;
-
-  PlayerPage({this.color: Colors.white});
-
   @override
   State<StatefulWidget> createState() => new PlayerPageState();
 }
 
 class PlayerPageState extends State<PlayerPage> with TickerProviderStateMixin {
-  LyricPanel panel;
-
   @override
   Widget build(BuildContext context) {
     PlayerStore player = PlayerStore.of(context);
-    AudioStore audioStore = AudioStore.of(context);
     Music music = player.music;
     if (music == null) {
       return Scaffold(
@@ -38,18 +31,6 @@ class PlayerPageState extends State<PlayerPage> with TickerProviderStateMixin {
           child: EmptyWidget(desc: "暂无播放音乐"),
         ),
       );
-    }
-    bool isPlaying = audioStore.isPlaying;
-    if (panel != null) {
-      if (panel.musicId != music.id || panel.platform != music.platform) {
-        print("重新加载歌词");
-        this.onMusicPanelChanged();
-      }
-    } else {
-      if (isPlaying) {
-        print("开始加载歌词");
-        this.onMusicPanelChanged();
-      }
     }
     return Stack(
       children: <Widget>[
@@ -92,107 +73,99 @@ class PlayerPageState extends State<PlayerPage> with TickerProviderStateMixin {
           body: new Stack(
             alignment: Alignment.topCenter,
             children: <Widget>[
-              Stack(
-                alignment: Alignment.topCenter,
-                children: <Widget>[
-                  new GestureDetector(
-                      onTap: player.playHandle,
-                      child: Stack(
-                        alignment: Alignment.topCenter,
-                        children: <Widget>[
-                          new Disc(
-                            isPlaying: isPlaying,
-                            cover: music.album.coverImageUrl,
-                          ),
-                          !isPlaying
-                              ? Padding(
-                                  padding: EdgeInsets.only(top: 186.0),
-                                  child: Container(
-                                    height: 56.0,
-                                    width: 56.0,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      image: DecorationImage(
-                                        alignment: Alignment.topCenter,
-                                        image: AssetImage(
-                                            "assets/images/play.png"),
-                                      ),
-                                    ),
-                                  ),
-                                )
-                              : Text('')
-                        ],
-                      )),
-                  new Pointer(isPlaying: isPlaying),
-                ],
-              ),
-              new Padding(
-                padding: const EdgeInsets.only(bottom: 20.0),
-                child: new Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: buildContent(audioStore, player),
-                ),
-              ),
+              LightDisk(),
+              PlayerController(),
             ],
           ),
         ),
       ],
     );
   }
+}
 
-  //初始化数据
-  resetPanelData() async {
-    print("加载歌词");
-    PlayerStore player = PlayerStore.of(context, listen: false);
-    if (player.music != null) {
-      var id = player.music.id;
-      print("歌曲平台：" + player.music.platform.toString());
-      if (player.music.platform == 1) {
-        try {
-          //先从文件缓存中查找，没有再发送请求获取
-          final lyricCache = await LyricCache.initLyricCache();
-          final key = LyricCacheKey(id);
-          String cached = await lyricCache.get(key);
-          String lrcString;
-          // String tlyricString;
-          print("缓存中是否有歌词" + (cached != null).toString());
-          if (cached != null) {
-            lrcString = cached;
-          } else {
-            var result = await neteaseApi.loadLyric({'id': id});
-            Map lyc = result["lrc"];
-            if (lyc != null) {
-              lrcString = lyc['lyric'];
-              //存入文件缓存
-              await lyricCache.update(key, lrcString);
-            }
-            // Map tlyric = result["tlyric"];
-            // if (tlyric != null) {
-            //   tlyricString = tlyric['lyric'];
-            // }
-          }
-          Lyric lyric = LyricUtil.formatLyric(lrcString);
-          setState(() {
-            panel = new LyricPanel(
-              musicId: player.music.id,
-              platform: player.music.platform,
-              lyric: lyric,
-            );
-          });
-        } catch (e) {
-          print("加载歌词失败");
-        }
+// 播放CD光盘
+class LightDisk extends StatelessWidget {
+  const LightDisk({Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    AudioStore audioStore = AudioStore.of(context);
+    PlayerStore player = PlayerStore.of(context);
+    Music music = player.music;
+    bool isPlaying = audioStore.isPlaying;
+    return Stack(
+      alignment: Alignment.topCenter,
+      children: <Widget>[
+        new GestureDetector(
+          onTap: player.playHandle,
+          child: Stack(
+            alignment: Alignment.topCenter,
+            children: <Widget>[
+              new Disc(
+                isPlaying: isPlaying,
+                cover: music.album.coverImageUrl,
+              ),
+              !isPlaying
+                  ? Padding(
+                      padding: EdgeInsets.only(top: 186.0),
+                      child: Container(
+                        height: 56.0,
+                        width: 56.0,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          image: DecorationImage(
+                            alignment: Alignment.topCenter,
+                            image: AssetImage("assets/images/play.png"),
+                          ),
+                        ),
+                      ),
+                    )
+                  : Text('')
+            ],
+          ),
+        ),
+        new Pointer(isPlaying: isPlaying),
+      ],
+    );
+  }
+}
+
+// 播放器控制器
+class PlayerController extends StatefulWidget {
+  final Color color;
+  PlayerController({this.color: Colors.white});
+
+  @override
+  _PlayerControllerState createState() => _PlayerControllerState();
+}
+
+class _PlayerControllerState extends State<PlayerController> {
+  LyricPanel panel;
+  @override
+  Widget build(BuildContext context) {
+    AudioStore audioStore = AudioStore.of(context);
+    PlayerStore player = PlayerStore.of(context);
+    Music music = player.music;
+    bool isPlaying = audioStore.isPlaying;
+    if (panel != null) {
+      if (panel.musicId != music.id || panel.platform != music.platform) {
+        print("重新加载歌词");
+        this.onMusicPanelChanged();
+      }
+    } else {
+      if (isPlaying) {
+        print("开始加载歌词");
+        this.onMusicPanelChanged();
       }
     }
-  }
-
-  //改变歌曲
-  onMusicPanelChanged() {
-    setState(() {
-      panel = null;
-    });
-    resetPanelData();
+    return new Padding(
+      padding: const EdgeInsets.only(bottom: 20.0),
+      child: new Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: buildContent(audioStore, player),
+      ),
+    );
   }
 
   List<Widget> buildContent(AudioStore audioStore, PlayerStore player) {
@@ -325,5 +298,59 @@ class PlayerPageState extends State<PlayerPage> with TickerProviderStateMixin {
         ":" +
         ((second < 10) ? "0$second" : "$second");
     return format;
+  }
+
+  //初始化数据
+  resetPanelData() async {
+    print("加载歌词");
+    PlayerStore player = PlayerStore.of(context, listen: false);
+    if (player.music != null) {
+      var id = player.music.id;
+      print("歌曲平台：" + player.music.platform.toString());
+      if (player.music.platform == 1) {
+        try {
+          //先从文件缓存中查找，没有再发送请求获取
+          final lyricCache = await LyricCache.initLyricCache();
+          final key = LyricCacheKey(id);
+          String cached = await lyricCache.get(key);
+          String lrcString;
+          // String tlyricString;
+          print("缓存中是否有歌词" + (cached != null).toString());
+          if (cached != null) {
+            lrcString = cached;
+          } else {
+            var result = await neteaseApi.loadLyric({'id': id});
+            Map lyc = result["lrc"];
+            if (lyc != null) {
+              lrcString = lyc['lyric'];
+              //存入文件缓存
+              await lyricCache.update(key, lrcString);
+            }
+            // Map tlyric = result["tlyric"];
+            // if (tlyric != null) {
+            //   tlyricString = tlyric['lyric'];
+            // }
+          }
+          Lyric lyric = LyricUtil.formatLyric(lrcString);
+          setState(() {
+            panel = new LyricPanel(
+              musicId: player.music.id,
+              platform: player.music.platform,
+              lyric: lyric,
+            );
+          });
+        } catch (e) {
+          print("加载歌词失败");
+        }
+      }
+    }
+  }
+
+  //改变歌曲
+  onMusicPanelChanged() {
+    setState(() {
+      panel = null;
+    });
+    resetPanelData();
   }
 }

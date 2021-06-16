@@ -1,7 +1,7 @@
 import 'package:cloud_music/repository/global_repository.dart';
 import 'package:cloud_music/routers/routers.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_music/pages/main/home/netease_home.dart';
+import 'package:cloud_music/pages/main/home/home_index.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -31,10 +31,6 @@ class _HomePageState extends State<HomePage>
       appBar: AppBar(
         // titleSpacing: 10.0,
         elevation: 0,
-        backgroundColor: Color(0xFFf1503B),
-        // iconTheme: IconThemeData(color: Colors.black),
-        // textTheme: Theme.of(context).primaryTextTheme,
-        // brightness: Theme.of(context).primaryColorBrightness,
         leading: Container(
           margin: EdgeInsets.only(left: 15),
           child: GestureDetector(
@@ -83,7 +79,7 @@ class _HomePageState extends State<HomePage>
           ),
         ),
       ),
-      body: NeteaseHome(),
+      body: HomeIndex(),
     );
   }
 }
